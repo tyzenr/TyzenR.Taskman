@@ -10,12 +10,10 @@ namespace TyzenR.Taskman.Entity
         public int Points { get; set; } 
         public double Hours { get; set; }
 
-        public DateTime CreatedOn { get; set; }
-
         public Guid CreatedBy { get; set; }
         public Guid AssignedTo { get; set; }
 
-        public DateTime UpdatedOn { get; set; }
+        public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;
         public Guid UpdatedBy { get; set; }
         public string UpdatedIP { get; set; }
     }
