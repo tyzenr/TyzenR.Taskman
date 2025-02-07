@@ -1,20 +1,15 @@
 ﻿using TyzenR.Account.Entity;
 using TyzenR.Account.Managers;
-using TyzenR.Investor.Managers.Extensions.EmailService;
-
 namespace TyzenR.Taskman.Managers
 {
     public class AppInfo : IAppInfo
     {
         private readonly IUserManager userManager;
-        private readonly IEmailConfig emailConfig;
 
         public AppInfo(
-            IUserManager userManager,
-            IEmailConfig emailConfig)
+            IUserManager userManager)
         {
-            this.userManager = userManager ?? throw new ApplicationException("User Manager is null!");
-            this.emailConfig = emailConfig ?? throw new ApplicationException("Email Config is null!");
+            this.userManager = userManager ?? throw new ApplicationException("Instance is null!");
         }
 
         public DateTime GetCurrentDateTime()
