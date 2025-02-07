@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Taskman.Managers", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Taskman.Entity", "TyzenR.Taskman.Entity\TyzenR.Taskman.Entity.csproj", "{11208B80-6A14-4F4D-B326-E62575471384}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Taskman.Web", "TyzenR.Taskman.Web\TyzenR.Taskman.Web.csproj", "{0D4CD148-C7DD-41C7-8F88-EB005D18AFF6}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{963F71B4-9112-48A0-A75D-54E4C149A35C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Publisher.Shared", "..\TyzenR.Publisher\TyzenR.Publisher.Shared\TyzenR.Publisher.Shared.csproj", "{722D4B2B-F0F4-439A-A95A-87F4EAD9C618}"
@@ -24,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{A97B9F79-8
 		DbScript.txt = DbScript.txt
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TyzenR.Taskman.Web", "TyzenR.Taskman.Web\TyzenR.Taskman.Web.csproj", "{A856BC1E-835F-4F87-89F4-213C9EF758C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,10 +38,6 @@ Global
 		{11208B80-6A14-4F4D-B326-E62575471384}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11208B80-6A14-4F4D-B326-E62575471384}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11208B80-6A14-4F4D-B326-E62575471384}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0D4CD148-C7DD-41C7-8F88-EB005D18AFF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0D4CD148-C7DD-41C7-8F88-EB005D18AFF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0D4CD148-C7DD-41C7-8F88-EB005D18AFF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0D4CD148-C7DD-41C7-8F88-EB005D18AFF6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{722D4B2B-F0F4-439A-A95A-87F4EAD9C618}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{722D4B2B-F0F4-439A-A95A-87F4EAD9C618}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{722D4B2B-F0F4-439A-A95A-87F4EAD9C618}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -58,6 +54,10 @@ Global
 		{AC73D07C-F28A-4A70-88DB-394DF04ECD1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC73D07C-F28A-4A70-88DB-394DF04ECD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC73D07C-F28A-4A70-88DB-394DF04ECD1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A856BC1E-835F-4F87-89F4-213C9EF758C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A856BC1E-835F-4F87-89F4-213C9EF758C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A856BC1E-835F-4F87-89F4-213C9EF758C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A856BC1E-835F-4F87-89F4-213C9EF758C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
