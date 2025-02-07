@@ -41,7 +41,6 @@
             <th class="pointer" @onclick="@(() => Sort("Title"))">Title</th>
             <th class="pointer" @onclick="@(() => Sort("Description"))">Description</th>
             <th class="pointer" @onclick="@(() => Sort("Action"))">Status</th>
-            <th class="pointer" @onclick="@(() => Sort("CreatedBy"))">Created By</th>
         </tr>
     </thead>
     <tbody>
@@ -50,6 +49,7 @@
             <tr>
                 <td>@task.Title  </td>
                 <td>@task.Description  </td>
+                <td>@task.Status  </td>
             </tr>
         }
     </tbody>
@@ -62,7 +62,7 @@
 </style>
 
 @code {
-    private IList<TaskEntity> list = new List<TaskEntity>();  
+    private IList<TaskEntity> list = new List<TaskEntity>();
 
     private string ErrorMessage = "";
     private string NotifyMessage = "";
