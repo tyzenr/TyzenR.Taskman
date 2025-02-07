@@ -1,0 +1,69 @@
+﻿@using System.Diagnostics
+@using Microsoft.Extensions.Options
+@using TyzenR.Account.Common
+@using TyzenR.Account.Dtos
+@using TyzenR.Account.Managers
+@using TyzenR.Taskman.Managers
+
+@inject IUserManager userManager;
+@inject NavigationManager navigationManager;
+@inject IOptions<AppSettings> settings
+@inject IAppInfo appInfo;
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Taskman</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        @if (Loading)
+        {
+            <div class="nav-item px-3 text-white text-center">
+                <b>Loading ... </b>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <i class="fa-solid fa-home m-1"></i> Tasks
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="Subscriptions">
+                    <i class="fa-solid fa-cart-shopping m-1"></i> Teams
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private bool Loading = true;
+    private bool CanAvailDiscount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loading = false;
+
+        var user = appInfo.GetCurrentUser();
+        if (user != null)
+        {
+            
+        }
+    }
+
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

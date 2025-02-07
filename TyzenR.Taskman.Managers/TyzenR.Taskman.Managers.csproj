@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Radzen.Blazor" Version="5.2.2" />
+    <PackageReference Include="SendGrid" Version="9.29.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TyzenR.EntityLibrary\TyzenR.EntityLibrary\TyzenR.EntityLibrary.csproj" />
+    <ProjectReference Include="..\..\TyzenR.Account\TyzenR.Account\TyzenR.Account.csproj" />
+    <ProjectReference Include="..\TyzenR.Taskman.Entity\TyzenR.Taskman.Entity.csproj" />
+  </ItemGroup>
+
+</Project>

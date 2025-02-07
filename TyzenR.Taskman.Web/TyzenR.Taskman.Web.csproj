@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TyzenR.Account\TyzenR.Account\TyzenR.Account.csproj" />
+    <ProjectReference Include="..\..\TyzenR.EntityLibrary\TyzenR.EntityLibrary\TyzenR.EntityLibrary.csproj" />
+    <ProjectReference Include="..\TyzenR.Investor.Entity\TyzenR.Taskman.Entity.csproj" />
+    <ProjectReference Include="..\TyzenR.Investor.Managers\TyzenR.Taskman.Managers.csproj" />
+    <ProjectReference Include="..\TyzenR.Taskman.Entity\TyzenR.Taskman.Entity.csproj" />
+    <ProjectReference Include="..\TyzenR.Taskman.Managers\TyzenR.Taskman.Managers.csproj" />
+  </ItemGroup>
+
+</Project>
