@@ -78,9 +78,9 @@ try
     app.UseStaticFiles();
     app.UseRouting();
 
-    app.UseHttpsRedirection();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
-    app.UseStaticFiles();
     app.UseAntiforgery();
 
     app.MapRazorComponents<App>()
