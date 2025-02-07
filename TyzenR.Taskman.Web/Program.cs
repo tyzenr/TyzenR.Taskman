@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Radzen;
 using TyzenR.Account;
 using TyzenR.Account.Common;
@@ -8,7 +6,7 @@ using TyzenR.Account.Managers;
 using TyzenR.Publisher.Shared;
 using TyzenR.Taskman.Entity;
 using TyzenR.Taskman.Managers;
-using TyzenR.Taskman.Web.Components;
+using TyzenR.Taskman.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -102,9 +100,6 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
 
 app.Run();
 }
