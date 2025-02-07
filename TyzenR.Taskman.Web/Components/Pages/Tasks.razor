@@ -45,15 +45,12 @@
         </tr>
     </thead>
     <tbody>
-        @if (list != null)
+        @foreach (var task in list)
         {
-            @foreach (var task in list)
-            {
-                <tr>
-                    <td>@task.Title  </td>
-                    <td>@task.Description  </td>
-                </tr>
-            }
+            <tr>
+                <td>@task.Title  </td>
+                <td>@task.Description  </td>
+            </tr>
         }
     </tbody>
 </table>
@@ -65,7 +62,7 @@
 </style>
 
 @code {
-    private IEnumerable<TaskEntity> list;
+    private IList<TaskEntity> list = new List<TaskEntity>();  
 
     private string ErrorMessage = "";
     private string NotifyMessage = "";
@@ -78,11 +75,9 @@
     [Parameter]
     public int page { get; set; } = 1;
 
-    protected override Task OnInitializedAsync()
+    protected async override Task OnInitializedAsync()
     {
-        RefreshDataAsync();
-
-        return base.OnInitializedAsync();
+        await RefreshDataAsync();
     }
 
     private async Task RefreshDataAsync(int page = 1, int pageSize = 10)
