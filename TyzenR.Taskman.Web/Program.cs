@@ -35,6 +35,8 @@ try
     AppSettings appSettings = new AppSettings();
     string publisherConnectionString = configuration.GetConnectionString("Publisher_ConnectionString");
     string accountConnectionString = configuration.GetConnectionString("Account_ConnectionString");
+    builder.Configuration.GetSection("AppSettings").Bind(appSettings);
+    builder.Services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
 
     builder.Services.AddDbContext<EntityContext>(options =>
     {
@@ -80,6 +82,8 @@ try
 
     app.UseAuthentication();
     app.UseAuthorization();
+
+    app.UseCors("CorsPolicy");
 
     app.UseAntiforgery();
 
