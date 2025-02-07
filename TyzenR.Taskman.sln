@@ -7,7 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Taskman.Managers", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Taskman.Entity", "TyzenR.Taskman.Entity\TyzenR.Taskman.Entity.csproj", "{11208B80-6A14-4F4D-B326-E62575471384}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TyzenR.Taskman.Web", "TyzenR.Taskman.Web\TyzenR.Taskman.Web.csproj", "{938046B5-BF1F-40D9-AB1F-85515F5A061F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Taskman.Web", "TyzenR.Taskman.Web\TyzenR.Taskman.Web.csproj", "{938046B5-BF1F-40D9-AB1F-85515F5A061F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{1DAF5D50-ADCF-4C11-87DE-4A0C83ABDBC2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Publisher.Shared", "..\TyzenR.Publisher\TyzenR.Publisher.Shared\TyzenR.Publisher.Shared.csproj", "{E26A8E58-12EA-4D4E-9BFC-6EC8265C34FC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Account", "..\TyzenR.Account\TyzenR.Account\TyzenR.Account.csproj", "{6E323E56-961B-4DE4-A19F-1FE10EAB36AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,9 +33,21 @@ Global
 		{938046B5-BF1F-40D9-AB1F-85515F5A061F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{938046B5-BF1F-40D9-AB1F-85515F5A061F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{938046B5-BF1F-40D9-AB1F-85515F5A061F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E26A8E58-12EA-4D4E-9BFC-6EC8265C34FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E26A8E58-12EA-4D4E-9BFC-6EC8265C34FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E26A8E58-12EA-4D4E-9BFC-6EC8265C34FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E26A8E58-12EA-4D4E-9BFC-6EC8265C34FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E323E56-961B-4DE4-A19F-1FE10EAB36AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E323E56-961B-4DE4-A19F-1FE10EAB36AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E323E56-961B-4DE4-A19F-1FE10EAB36AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E323E56-961B-4DE4-A19F-1FE10EAB36AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E26A8E58-12EA-4D4E-9BFC-6EC8265C34FC} = {1DAF5D50-ADCF-4C11-87DE-4A0C83ABDBC2}
+		{6E323E56-961B-4DE4-A19F-1FE10EAB36AA} = {1DAF5D50-ADCF-4C11-87DE-4A0C83ABDBC2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {90637776-8EED-48AB-A6D3-45B54FDD716E}
