@@ -49,21 +49,30 @@ try
     }, ServiceLifetime.Transient);
 
     builder.Services.AddHttpContextAccessor();
+    builder.Services.AddTyzenrAccountAuthentication(builder);
 
     builder.Services.AddTransient<IAccountServiceClient, AccountServiceClient>();
     builder.Services.AddTransient<IUserManager, UserManager>();
     builder.Services.AddScoped<IAppInfo, AppInfo>();
     builder.Services.AddTransient<ITaskManager, TaskManager>();
 
+    builder.Services.AddCors(options =>
+    {
+        var origin = appSettings.CorsOrigin;
+        options.AddPolicy("CorsPolicy",
+        builder =>
+        {
+            builder.WithOrigins(origin)
+                .SetIsOriginAllowedToAllowWildcardSubdomains()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+    });
+
     var app = builder.Build();
 
-    // Configure the HTTP request pipeline.
-    if (!app.Environment.IsDevelopment())
-    {
-        app.UseExceptionHandler("/Error", createScopeForErrors: true);
-        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-        app.UseHsts();
-    }
+
 
     app.UseHttpsRedirection();
 
