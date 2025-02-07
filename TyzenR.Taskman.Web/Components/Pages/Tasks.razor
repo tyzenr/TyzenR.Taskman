@@ -1,0 +1,148 @@
+﻿@page "/"
+
+<PageTitle>Tasks</PageTitle>
+
+@using TyzenR.EntityLibrary;
+@using TyzenR.Taskman.Entity
+@using TyzenR.Taskman.Managers;
+@using TyzenR.Publisher.Shared;
+
+@inject ITaskManager taskManager
+@inject IJSRuntime JsRuntime
+@inject IAppInfo appInfo
+
+<PageTitle>Contents</PageTitle>
+<h1>Contents</h1>
+
+@if (!string.IsNullOrEmpty(NotifyMessage))
+{
+    <div class="alert alert-success">
+        @NotifyMessage
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ErrorMessage
+    </div>
+}
+
+@if (list == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="text-center" style=" display: flex; align-items: center; gap: 10px; margin-left:400px">
+        <NavLink class="btn btn-success" href="@("Content/Add")">
+            <i class="fa-solid fa-plus m-1"></i> Add
+        </NavLink>
+        <div style="margin-top:15px;">
+            <Pagination TotaPagesQuantity="totalPages" CurrentPage="currentPage" Radius="2"
+                        SelectedPage="SelectedPage">
+            </Pagination>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="pointer" @onclick="@(() => Sort("Title"))">Title</th>
+                <th class="pointer" @onclick="@(() => Sort("Symbol"))">Stock Name</th>
+                <th class="pointer" @onclick="@(() => Sort("Action"))">Action</th>
+                <th class="pointer" @onclick="@(() => Sort("Status"))">Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (list != null)
+            {
+                @foreach (var task in list)
+                {
+                    <tr>
+                        <td>@task.Title  </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+<style>
+    .pointer:hover {
+        cursor: pointer;
+    }
+</style>
+
+@code {
+
+    private IEnumerable<TaskEntity> list;
+
+    private string ErrorMessage = "";
+    private string NotifyMessage = "";
+    private Guid currentlySending;
+    private int totalPages = 1, currentPage = 1;
+    private string sortBy = "CreatedOn";
+    private SortDirection sortDirection = SortDirection.Descending;
+
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public int page { get; set; } = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RefreshDataAsync();
+        }
+    }
+
+    private async Task RefreshDataAsync(int page = 1, int pageSize = 10)
+    {
+        ErrorMessage = string.Empty;
+
+        try
+        {
+            list = await taskManager.GetTasksByUserAsync(appInfo.GetCurrentUser());
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"An error occurred: {ex.Message}";
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task Sort(string sortBy)
+    {
+        this.sortBy = sortBy;
+        sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+
+        await RefreshDataAsync();
+    }
+
+    private async Task DeleteItem(TaskEntity item)
+    {
+        ErrorMessage = "";
+        NotifyMessage = "";
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "You are about to delete this item?");
+        if (confirmed)
+        {
+            try
+            {
+                
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await SharedUtility.SendEmailToModertorAsync("Taskman.Tasks.DeleteItem", ex.ToString());
+                ErrorMessage = "An error has occurred!";
+            }
+        }
+    }
+}

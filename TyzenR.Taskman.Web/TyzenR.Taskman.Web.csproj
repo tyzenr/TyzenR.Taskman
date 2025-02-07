@@ -6,4 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\TyzenR.Account\TyzenR.Account\TyzenR.Account.csproj" />
+    <ProjectReference Include="..\..\TyzenR.EntityLibrary\TyzenR.EntityLibrary\TyzenR.EntityLibrary.csproj" />
+    <ProjectReference Include="..\..\TyzenR.Publisher\TyzenR.Publisher.Shared\TyzenR.Publisher.Shared.csproj" />
+    <ProjectReference Include="..\TyzenR.Taskman.Entity\TyzenR.Taskman.Entity.csproj" />
+    <ProjectReference Include="..\TyzenR.Taskman.Managers\TyzenR.Taskman.Managers.csproj" />
+  </ItemGroup>
+
 </Project>
