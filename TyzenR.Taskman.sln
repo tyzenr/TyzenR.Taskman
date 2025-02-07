@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Taskman.Managers", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TyzenR.Taskman.Entity", "TyzenR.Taskman.Entity\TyzenR.Taskman.Entity.csproj", "{11208B80-6A14-4F4D-B326-E62575471384}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TyzenR.Taskman.Web", "TyzenR.Taskman.Web\TyzenR.Taskman.Web.csproj", "{0D4CD148-C7DD-41C7-8F88-EB005D18AFF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TyzenR.Taskman.Web", "TyzenR.Taskman.Web\TyzenR.Taskman.Web.csproj", "{938046B5-BF1F-40D9-AB1F-85515F5A061F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{11208B80-6A14-4F4D-B326-E62575471384}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11208B80-6A14-4F4D-B326-E62575471384}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11208B80-6A14-4F4D-B326-E62575471384}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0D4CD148-C7DD-41C7-8F88-EB005D18AFF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0D4CD148-C7DD-41C7-8F88-EB005D18AFF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0D4CD148-C7DD-41C7-8F88-EB005D18AFF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0D4CD148-C7DD-41C7-8F88-EB005D18AFF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{938046B5-BF1F-40D9-AB1F-85515F5A061F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{938046B5-BF1F-40D9-AB1F-85515F5A061F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{938046B5-BF1F-40D9-AB1F-85515F5A061F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{938046B5-BF1F-40D9-AB1F-85515F5A061F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
