@@ -7,6 +7,8 @@ namespace TyzenR.Taskman.Entity
         public string Title { get; set; }
         public string Description { get; set; }
 
+        public TaskStatusEnum Status { get; set; }
+
         public int Points { get; set; } 
         public double Hours { get; set; }
 
