@@ -1,7 +1,9 @@
-﻿using TyzenR.EntityLibrary;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using TyzenR.EntityLibrary;
 
 namespace TyzenR.Taskman.Entity
 {
+    [Table("Task")]
     public class TaskEntity : BaseEntity
     {
         public string Title { get; set; }

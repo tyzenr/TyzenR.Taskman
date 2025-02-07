@@ -1,4 +1,5 @@
-﻿using TyzenR.Account.Entity;
+﻿using System.Diagnostics;
+using TyzenR.Account.Entity;
 using TyzenR.Account.Managers;
 namespace TyzenR.Taskman.Managers
 {
@@ -49,6 +50,15 @@ namespace TyzenR.Taskman.Managers
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Email = user.Email,
+                };
+            }
+
+            if (Debugger.IsAttached)
+            {
+                return new UserEntity()
+                {
+                    Id = Guid.Empty,
+                    FirstName = "Dev",
                 };
             }
 

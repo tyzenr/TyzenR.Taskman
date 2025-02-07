@@ -11,8 +11,8 @@
 @inject IJSRuntime JsRuntime
 @inject IAppInfo appInfo
 
-<PageTitle>Contents</PageTitle>
-<h1>Contents</h1>
+<PageTitle>Tasks</PageTitle>
+<h1>Tasks</h1>
 
 @if (!string.IsNullOrEmpty(NotifyMessage))
 {
@@ -28,45 +28,35 @@
     </div>
 }
 
-@if (list == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <div class="text-center" style=" display: flex; align-items: center; gap: 10px; margin-left:400px">
-        <NavLink class="btn btn-success" href="@("Content/Add")">
-            <i class="fa-solid fa-plus m-1"></i> Add
-        </NavLink>
-        <div style="margin-top:15px;">
-            <Pagination TotaPagesQuantity="totalPages" CurrentPage="currentPage" Radius="2"
-                        SelectedPage="SelectedPage">
-            </Pagination>
-        </div>
+<div class="text-center" style=" display: flex; align-items: center; gap: 10px; margin-left:400px">
+    <NavLink class="btn btn-success" href="@("Content/Add")">
+        <i class="fa-solid fa-plus m-1"></i> Add
+    </NavLink>
+    <div style="margin-top:15px;">
     </div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th class="pointer" @onclick="@(() => Sort("Title"))">Title</th>
-                <th class="pointer" @onclick="@(() => Sort("Symbol"))">Stock Name</th>
-                <th class="pointer" @onclick="@(() => Sort("Action"))">Action</th>
-                <th class="pointer" @onclick="@(() => Sort("Status"))">Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (list != null)
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="pointer" @onclick="@(() => Sort("Title"))">Title</th>
+            <th class="pointer" @onclick="@(() => Sort("Description"))">Description</th>
+            <th class="pointer" @onclick="@(() => Sort("Action"))">Status</th>
+            <th class="pointer" @onclick="@(() => Sort("CreatedBy"))">Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (list != null)
+        {
+            @foreach (var task in list)
             {
-                @foreach (var task in list)
-                {
-                    <tr>
-                        <td>@task.Title  </td>
-                    </tr>
-                }
+                <tr>
+                    <td>@task.Title  </td>
+                    <td>@task.Description  </td>
+                </tr>
             }
-        </tbody>
-    </table>
-}
+        }
+    </tbody>
+</table>
 
 <style>
     .pointer:hover {
@@ -75,7 +65,6 @@ else
 </style>
 
 @code {
-
     private IEnumerable<TaskEntity> list;
 
     private string ErrorMessage = "";
@@ -89,17 +78,11 @@ else
     [Parameter]
     public int page { get; set; } = 1;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
+        RefreshDataAsync();
 
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await RefreshDataAsync();
-        }
+        return base.OnInitializedAsync();
     }
 
     private async Task RefreshDataAsync(int page = 1, int pageSize = 10)
@@ -112,7 +95,7 @@ else
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"An error occurred: {ex.Message}";
+            await SharedUtility.SendEmailToModertorAsync("Taskman.Tasks.RefreshDataAsync", ex.ToString());
         }
 
         StateHasChanged();
@@ -135,7 +118,7 @@ else
         {
             try
             {
-                
+
                 StateHasChanged();
             }
             catch (Exception ex)
