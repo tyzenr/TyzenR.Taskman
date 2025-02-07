@@ -14,6 +14,11 @@ namespace TyzenR.Taskman.Managers
             this.context = context;
         }
 
+        public Task<(bool, TaskEntity)> CreateTaskAsync(TaskEntity task)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<IList<TaskEntity>> GetTasksByUserAsync(UserEntity user)
         {
             var result = await this.context.Tasks
@@ -21,6 +26,11 @@ namespace TyzenR.Taskman.Managers
                 .ToListAsync();
 
             return result;
+        }
+
+        public Task<bool> IsValidAsync(TaskEntity task)
+        {
+            throw new NotImplementedException();
         }
     }
 }

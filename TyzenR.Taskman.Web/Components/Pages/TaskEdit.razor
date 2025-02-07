@@ -1,7 +1,5 @@
 ﻿@page "/task/{action}/{id?}"
 
-@page "/Plan/{action}/{id?}"
-
 @using TyzenR.Publisher.Shared
 @using TyzenR.Taskman.Entity
 @using TyzenR.Taskman.Managers
@@ -25,24 +23,22 @@
     </div>
 }
 
-<EditForm Model="@Plan" OnValidSubmit="@Save">
+<EditForm Model="@item" OnValidSubmit="@Save">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="form-group row m-1">
-        <label class="col-sm-2 " for="Name">Name:</label>
+        <label class="col-sm-2 " for="Title">Title:</label>
         <div class="col-sm-10">
-            <InputText required id="Name" @bind-Value="item.Title" class="form-control" />
+            <InputText required id="Title" @bind-Value="item.Title" class="form-control" />
         </div>
     </div>
 
     <div class="form-group row m-1">
-        <label class="col-sm-2 " for="Period">Default Period (In Days):</label>
+        <label class="col-sm-2 " for="Description">Description:</label>
         <div class="col-sm-10">
-            <InputNumber required id="Period" @bind-Value="item.Description" class="form-control" />
+            <InputNumber required id="Description" @bind-Value="item.Description" class="form-control" />
         </div>
     </div>
-    <br />
-
 
     <div class="form-group row m-1">
         <button type="submit" disabled="@submitLoading" class="col-sm-2 btn btn-primary">
@@ -51,8 +47,6 @@
     </div>
 </EditForm>
 
-
-
 @code {
     [Parameter]
     public string action { get; set; }
@@ -60,7 +54,7 @@
     [Parameter]
     public string id { get; set; }
 
-    public TaskEntity item;
+    public TaskEntity item = new TaskEntity();
     private bool showConfirmation = false;
     private bool submitLoading = false;
 
@@ -85,7 +79,7 @@
                 }
                 catch (Exception ex)
                 {
-                    await SharedUtility.SendEmailToModertorAsync("Publisher.PlanForm.OnAfterRenderAsync", ex.ToString());
+                    await SharedUtility.SendEmailToModertorAsync("Taskman.TaskEdit.OnAfterRenderAsync.Exception", ex.ToString());
                     ErrorMessage = "An error has occurred!";
                 }
 
@@ -101,11 +95,11 @@
         ErrorMessage = "";
         try
         {
-            if (await manager.IsValid(item))
+            if (await manager.IsValidAsync(item))
             {
                 if (action == "Add")
                 {
-                    await manager.CreatePlanAsync(item);
+                    await manager.CreateTaskAsync(item);
                 }
                 else
                 {
