@@ -9,6 +9,7 @@ CREATE TABLE [dbo].[Task](
 	[Id] [uniqueidentifier] NOT NULL,
 	[Title] [nvarchar](max) NOT NULL,
 	[Description] [nvarchar](max) NOT NULL,
+	[Status] [int] NOT NULL,
 	[Points] [int] NOT NULL,
 	[Hours] [float] NOT NULL,
 	[CreatedBy] [uniqueidentifier] NOT NULL,
