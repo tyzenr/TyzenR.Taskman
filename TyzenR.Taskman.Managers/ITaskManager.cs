@@ -6,8 +6,7 @@ namespace TyzenR.Taskman.Managers
 {
     public interface ITaskManager : IRepository<TaskEntity>
     {
-        Task<IList<TaskEntity>> GetTasksByUserAsync(UserEntity user);
-        Task<bool> IsValidAsync(TaskEntity task);
+        Task<IList<TaskEntity>> GetTasksForUserAsync(UserEntity user);
         Task<(bool, TaskEntity)> CreateTaskAsync(TaskEntity task);
     }
 }

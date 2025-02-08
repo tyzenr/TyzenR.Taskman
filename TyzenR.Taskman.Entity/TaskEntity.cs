@@ -11,8 +11,8 @@ namespace TyzenR.Taskman.Entity
 
         public TaskStatusEnum Status { get; set; }
 
-        public int Points { get; set; } 
-        public double Hours { get; set; }
+        public double Points { get; set; } = 1;
+        public double Hours { get; set; } = 8;
 
         public Guid CreatedBy { get; set; }
         public Guid AssignedTo { get; set; }

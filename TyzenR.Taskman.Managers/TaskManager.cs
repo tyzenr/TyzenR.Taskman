@@ -19,18 +19,19 @@ namespace TyzenR.Taskman.Managers
             throw new NotImplementedException();
         }
 
-        public async Task<IList<TaskEntity>> GetTasksByUserAsync(UserEntity user)
+        public async Task<IList<TaskEntity>> GetTasksForUserAsync(UserEntity user)
         {
-            var result = await this.context.Tasks
-                .Where(t => t.Status == TaskStatusEnum.InProgress)
+            var result1 = await this.context.Tasks
+                .Where(t => t.Status == TaskStatusEnum.InProgress && (t.CreatedBy == user.Id || t.AssignedTo == user.Id))
                 .ToListAsync();
 
-            return result;
-        }
+            var result2 = await this.context.Tasks
+                .Where(t => t.Status == TaskStatusEnum.Completed && (t.CreatedBy == user.Id || t.AssignedTo == user.Id))
+                .ToListAsync();
 
-        public Task<bool> IsValidAsync(TaskEntity task)
-        {
-            throw new NotImplementedException();
+            result1.AddRange(result2);
+
+            return result1;
         }
     }
 }

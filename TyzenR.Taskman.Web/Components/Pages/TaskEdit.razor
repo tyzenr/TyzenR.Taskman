@@ -5,7 +5,8 @@
 @using TyzenR.Taskman.Managers
 
 @inject ITaskManager manager
-@inject NavigationManager _Navigation
+@inject IAppInfo appInfo
+@inject NavigationManager navigation
 
 <h3>@action Task</h3>
 
@@ -36,14 +37,43 @@
     <div class="form-group row m-1">
         <label class="col-sm-2 " for="Description">Description:</label>
         <div class="col-sm-10">
-            <InputNumber required id="Description" @bind-Value="item.Description" class="form-control" />
+            <InputTextArea required id="Description" @bind-Value="item.Description" class="form-control" />
+        </div>
+    </div>
+
+
+    <div class="form-group row m-1">
+        <label class="col-sm-2" for="Hours">Hours:</label>
+        <div class="col-sm-4">
+            <InputNumber id="Hours" @bind-Value="item.Hours" required class="form-control" />
+        </div>
+
+        <label class="col-sm-2" for="Points">Points:</label>
+        <div class="col-sm-4">
+            <InputNumber id="Points" @bind-Value="item.Points" required class="form-control" />
         </div>
     </div>
 
     <div class="form-group row m-1">
-        <button type="submit" disabled="@submitLoading" class="col-sm-2 btn btn-primary">
-            @(submitLoading ? "loading ..." : "Save")
+        <button type="submit" disabled="@saving" class="col-sm-2 btn btn-primary">
+            @(saving ? "loading ..." : "Save")
         </button>
+
+        @if (action == "Edit")
+        {
+            if (item.Status == TaskStatusEnum.InProgress)
+            {
+                <button type="button" class="col-sm-2 btn btn-primary">
+                    Mark as Complete
+                </button>
+            }
+            else if (item.Status == TaskStatusEnum.Completed)
+            {
+                <button type="button" class="col-sm-2 btn btn-primary">
+                    Mark as InProgress
+                </button>
+            }
+        }
     </div>
 </EditForm>
 
@@ -56,7 +86,7 @@
 
     public TaskEntity item = new TaskEntity();
     private bool showConfirmation = false;
-    private bool submitLoading = false;
+    private bool saving = false;
 
     private string ErrorMessage = "";
 
@@ -91,29 +121,42 @@
 
     private async Task Save()
     {
-        submitLoading = true;
+        saving = true;
         ErrorMessage = "";
+
+        item.Title = item.Title.Trim();
+        item.Description = item.Description.Trim();
+
         try
         {
-            if (await manager.IsValidAsync(item))
+            if (string.IsNullOrEmpty(item.Title))
             {
+                ErrorMessage = "Title is required!";
+            }
+            else if (string.IsNullOrEmpty(item.Description))
+            {
+                ErrorMessage = "Description is required!";
+            }
+
+            else // If valid
+            {
+                item.UpdatedBy = appInfo.CurrentUserId;
+                item.UpdatedOn = DateTime.Now;
+
                 if (action == "Add")
                 {
-                    await manager.CreateTaskAsync(item);
+                    item.CreatedBy = appInfo.CurrentUserId;
+                    item.AssignedTo = appInfo.CurrentUserId;
+
+                    await manager.InsertAsync(item);
                 }
                 else
                 {
                     await manager.UpdateAsync(item);
                 }
-                showConfirmation = true;
-                _Navigation.NavigateTo("/Plans");
+                
+                navigation.NavigateTo("/tasks");
             }
-            else
-            {
-                ErrorMessage = "Plan with the same name already exists!";
-            }
-
-
         }
         catch (Exception ex)
         {
@@ -121,6 +164,6 @@
             ErrorMessage = "An error has occurred!";
 
         }
-        submitLoading = false;
+        saving = false;
     }
 }
