@@ -24,7 +24,7 @@
     </div>
 }
 
-<EditForm Model="@item" OnValidSubmit="@Save" FormName="TaskEdit">
+<EditForm Model="@item" OnValidSubmit="@Save" FormName="form">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="form-group row m-1">
@@ -87,12 +87,18 @@
     public TaskEntity item;
     private bool showConfirmation = false;
     private bool saving = false;
-
     private string ErrorMessage = "";
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override Task OnInitializedAsync()
     {
-        if (firstRender)
+        RefreshDataAsync();
+
+        return base.OnInitializedAsync();
+    }
+
+    private async void RefreshDataAsync()
+    {
+        if (item == null)
         {
             if (action == "Add")
             {
@@ -113,6 +119,7 @@
                     ErrorMessage = "An error has occurred!";
                 }
             }
+
             StateHasChanged();
         }
     }
@@ -152,7 +159,7 @@
                 {
                     await manager.UpdateAsync(item);
                 }
-                
+
                 navigation.NavigateTo("/tasks");
             }
         }
