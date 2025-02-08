@@ -24,7 +24,7 @@
     </div>
 }
 
-<EditForm Model="@item" OnValidSubmit="@Save">
+<EditForm Model="@item" OnValidSubmit="@Save" FormName="TaskEdit">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="form-group row m-1">
@@ -84,7 +84,7 @@
     [Parameter]
     public string id { get; set; }
 
-    public TaskEntity item = new TaskEntity();
+    public TaskEntity item;
     private bool showConfirmation = false;
     private bool saving = false;
 
@@ -112,11 +112,9 @@
                     await SharedUtility.SendEmailToModertorAsync("Taskman.TaskEdit.OnAfterRenderAsync.Exception", ex.ToString());
                     ErrorMessage = "An error has occurred!";
                 }
-
             }
             StateHasChanged();
         }
-
     }
 
     private async Task Save()
