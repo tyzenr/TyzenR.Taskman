@@ -23,22 +23,20 @@
         AppSettings appSettings = settings.Value;
         if (!string.IsNullOrEmpty(appSettings.AccountUrl))
         {
-            var loginUrl = $"{appSettings.AccountUrl}/{ApplicationEnum.Taskman.ToString()}";
+            var loginUrl = $"{appSettings.AccountUrl}/{ApplicationEnum.Publisher.ToString()}";
 
-            var ReturnUrl = appSettings.TaskmanUrl;
+            var ReturnUrl = appSettings.PublisherUrl;
 
             var Url = $"{loginUrl}?redirectUrl={ReturnUrl}";
 
             // Navigate User To Login Page if Not Authenticated
-            if (authenticationStateTask != null)
-            {
-                _user = (await authenticationStateTask).User;
+            _user = (await authenticationStateTask).User;
 
-                if (_user != null && !_user.Identity.IsAuthenticated)
+            if (_user != null)
+                if (!_user.Identity.IsAuthenticated)
                 {
                     _navigationManager.NavigateTo(Url, true);
                 }
-            }
         }
     }
 }
