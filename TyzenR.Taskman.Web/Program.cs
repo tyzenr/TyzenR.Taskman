@@ -8,7 +8,7 @@ using TyzenR.Account.ServiceClients;
 using TyzenR.Publisher.Shared;
 using TyzenR.Taskman.Entity;
 using TyzenR.Taskman.Managers;
-using TyzenR.Taskman.Web.Components;
+using TyzenR.Taskman.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,12 +91,17 @@ try
     app.UseAuthorization();
 
     app.UseCors("CorsPolicy");
+    app.UseCookiePolicy(
+    new CookiePolicyOptions()
+    {
+        MinimumSameSitePolicy = SameSiteMode.Lax
+    });
 
-    app.UseAntiforgery();
+    app.MapBlazorHub();
+    app.MapFallbackToPage("/_Host");
 
-    app.MapRazorComponents<App>()
-        .AddInteractiveServerRenderMode();
-
+    // Uncomment to view error in browser
+    // app.UseDeveloperExceptionPage();
     app.Run();
 }
 catch (Exception ex)

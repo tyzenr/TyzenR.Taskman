@@ -1,0 +1,15 @@
+
+@inject IHttpContextAccessor _httpContextAccessor;
+
+@{
+    var User = _httpContextAccessor.HttpContext?.User;
+}
+
+@if (User != null && User.Identity.IsAuthenticated)
+{
+    <span class="navbar-text text-dark my-0 mx-2">@User.Identity.Name!</span>
+    <span>&nbsp;|</span>
+    <a class="z-index-3 mx-2" href="/Logout" target="_top" Match="NavLinkMatch.All">
+        Sign out<span class="oi oi-power-standby mx-1" area-hidden="true"> </span>
+    </a>
+}
