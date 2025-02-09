@@ -1,5 +1,7 @@
 ﻿@page "/task/{action}/{id?}"
 
+@using System.Text.Json
+@using Newtonsoft.Json
 @using TyzenR.Publisher.Shared
 @using TyzenR.Taskman.Entity
 @using TyzenR.Taskman.Managers
@@ -147,10 +149,12 @@
                     item.Status = TaskStatusEnum.InProgress;
 
                     await manager.InsertAsync(item);
+                    await NotifyManagers(true);
                 }
                 else
                 {
                     await manager.UpdateAsync(item);
+                    await NotifyManagers(false);
                 }
 
                 navigation.NavigateTo("/");
@@ -160,8 +164,33 @@
         {
             await SharedUtility.SendEmailToModertorAsync("Taskman.TaskEdit.Save", ex.ToString());
             ErrorMessage = "An error has occurred!";
-
         }
         saving = false;
+    }
+
+    private async Task NotifyManagers(bool insert)
+    {
+        var json = JsonConvert.SerializeObject(item, Formatting.Indented).Break();
+
+        try
+        {
+            var managers = await manager.GetManagersAsync(appInfo.GetCurrentUser());
+
+            foreach (var manager in managers)
+            {
+                if (insert)
+                {
+                    await appInfo.SendEmailAsync(manager.Email, "Team Member New Task", json);
+                }
+                else
+                {
+                    await appInfo.SendEmailAsync(manager.Email, "Team Member Update Task", json);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await SharedUtility.SendEmailToModertorAsync("Taskman.TaskEdit.NotifyManagers.Exception", ex.ToString().Break() + json);
+        }
     }
 }

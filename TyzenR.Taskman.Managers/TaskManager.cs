@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TyzenR.Account;
 using TyzenR.Account.Entity;
 using TyzenR.EntityLibrary;
 using TyzenR.Taskman.Entity;
@@ -7,16 +8,27 @@ namespace TyzenR.Taskman.Managers
 {
     public class TaskManager : BaseRepository<TaskEntity>, ITaskManager
     {
-        private EntityContext context;
+        private readonly EntityContext context;
+        private readonly AccountContext accountContext;
 
-        public TaskManager(EntityContext context) : base(context)
+        public TaskManager(EntityContext context, AccountContext accountContext) : base(context)
         {
             this.context = context;
+            this.accountContext = accountContext;
         }
 
-        public Task<(bool, TaskEntity)> CreateTaskAsync(TaskEntity task)
+        public async Task<IList<UserEntity>> GetManagersAsync(UserEntity user)
         {
-            throw new NotImplementedException();
+            var managerIds = await this.context.Teams
+                .Where(t => t.MemberId == user.Id)
+                .Select(t => t.ManagerId)
+                .ToListAsync();
+
+            var users = await this.accountContext.Users
+                .Where(u => managerIds.Contains(u.Id))
+                .ToListAsync();
+
+            return users;
         }
 
         public async Task<IList<TaskEntity>> GetTasksForUserAsync(UserEntity user)

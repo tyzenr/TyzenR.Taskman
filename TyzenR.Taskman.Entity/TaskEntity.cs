@@ -10,6 +10,5 @@ namespace TyzenR.Taskman.Entity
         public Guid ManagerId { get; set; }
 
         public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;
-        public Guid UpdatedBy { get; set; }
     }
 }

@@ -15,5 +15,10 @@ namespace TyzenR.Taskman.Managers
         string CurrentUserIPAddress { get; }
 
         DateTime ConvertToUtc(DateTime date);
+
+        Task SendEmailAsync(
+            string toEmail,
+            string subject,
+            string body);
     }
 }

@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Mail;
 using TyzenR.Account.Entity;
 using TyzenR.Account.Managers;
+using TyzenR.Publisher.Shared;
+using TyzenR.Taskman.Entity;
 
 namespace TyzenR.Taskman.Managers
 {
@@ -79,6 +83,31 @@ namespace TyzenR.Taskman.Managers
             var result = TimeZoneInfo.ConvertTimeToUtc(date, TimeZoneInfo.FindSystemTimeZoneById(this.CurrentTimeZoneId));
 
             return result;
+        }
+
+        public async Task SendEmailAsync(string toEmail, string subject, string body)
+        {
+            await SharedUtility.SendEmailAsync(toEmail, subject, body, "contact@futurecaps.com", Constants.ApplicationTitle);
+        }
+
+        private static void SendEmailSmtp(string subject, string body, string recipient)
+        {
+            SmtpClient client = new SmtpClient("smtp", 80);
+            client.EnableSsl = true;
+            client.Credentials = new NetworkCredential("email", "pwd");
+
+            MailMessage message = new MailMessage("sender",
+                           recipient,
+                           subject,
+                           body);
+
+            message.From = new MailAddress(
+                "sender",
+                Constants.ApplicationTitle
+                );
+            message.IsBodyHtml = true;
+
+            client.Send(message);
         }
     }
 }
