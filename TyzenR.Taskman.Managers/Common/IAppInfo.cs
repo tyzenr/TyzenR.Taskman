@@ -12,6 +12,8 @@ namespace TyzenR.Taskman.Managers
 
         string CurrentTimeZoneId { get; }
 
+        string CurrentUserIPAddress { get; }
+
         DateTime ConvertToUtc(DateTime date);
     }
 }

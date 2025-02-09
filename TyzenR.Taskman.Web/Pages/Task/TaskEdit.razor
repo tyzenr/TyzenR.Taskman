@@ -110,7 +110,6 @@
                     await SharedUtility.SendEmailToModertorAsync("Taskman.TaskEdit.OnAfterRenderAsync.Exception", ex.ToString());
                     ErrorMessage = "An error has occurred!";
                 }
-
             }
             StateHasChanged();
         }
@@ -139,6 +138,7 @@
             {
                 item.UpdatedBy = appInfo.CurrentUserId;
                 item.UpdatedOn = DateTime.Now;
+                item.UpdatedIP = appInfo.CurrentUserIPAddress;
 
                 if (action == "Add")
                 {

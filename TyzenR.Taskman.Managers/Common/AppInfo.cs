@@ -1,16 +1,20 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
 using TyzenR.Account.Entity;
 using TyzenR.Account.Managers;
+
 namespace TyzenR.Taskman.Managers
 {
     public class AppInfo : IAppInfo
     {
         private readonly IUserManager userManager;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
-        public AppInfo(
-            IUserManager userManager)
+        public AppInfo(IUserManager userManager,
+            IHttpContextAccessor httpContextAccessor)
         {
             this.userManager = userManager ?? throw new ApplicationException("Instance is null!");
+            this.httpContextAccessor = httpContextAccessor ?? throw new ApplicationException("Instance is null!");
         }
 
         public DateTime GetCurrentDateTime()
@@ -36,6 +40,11 @@ namespace TyzenR.Taskman.Managers
 
                 return Guid.Empty;
             }
+        }
+
+        public string CurrentUserIPAddress
+        {
+            get { return httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "Unknown"; }
         }
 
         public UserEntity GetCurrentUser()
