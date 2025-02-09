@@ -1,6 +1,7 @@
 using Blazored.Modal;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.Blazor;
+using System.Diagnostics;
 using TyzenR.Account;
 using TyzenR.Account.Common;
 using TyzenR.Account.Managers;
@@ -100,8 +101,11 @@ try
     app.MapBlazorHub();
     app.MapFallbackToPage("/_Host");
 
-    // Uncomment to view error in browser
-    // app.UseDeveloperExceptionPage();
+    if (Debugger.IsAttached)
+    {
+        app.UseDeveloperExceptionPage();
+    }
+
     app.Run();
 }
 catch (Exception ex)
