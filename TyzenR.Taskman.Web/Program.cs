@@ -1,4 +1,6 @@
+using Blazored.Modal;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.Blazor;
 using TyzenR.Account;
 using TyzenR.Account.Common;
 using TyzenR.Account.Managers;
@@ -52,6 +54,11 @@ try
 
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddTyzenrAccountAuthentication(builder);
+
+    builder.Services.AddRazorPages();
+    builder.Services.AddServerSideBlazor();
+    builder.Services.AddBlazoredModal();
+    builder.Services.AddSyncfusionBlazor();
 
     builder.Services.AddTransient<IAccountServiceClient, AccountServiceClient>();
     builder.Services.AddTransient<IUserManager, UserManager>();
