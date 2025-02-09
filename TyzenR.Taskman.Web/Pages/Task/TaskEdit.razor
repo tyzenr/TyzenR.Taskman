@@ -24,7 +24,7 @@
     </div>
 }
 
-<EditForm Model="@item" OnValidSubmit="@Save" FormName="form">
+<EditForm Model="@item" OnValidSubmit="@Save">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="form-group row m-1">
@@ -37,7 +37,7 @@
     <div class="form-group row m-1">
         <label class="col-sm-2 " for="Description">Description:</label>
         <div class="col-sm-10">
-            <InputTextArea required id="Description" @bind-Value="item.Description" class="form-control" />
+            <InputTextArea rows="10" required id="Description" @bind-Value="item.Description" class="form-control" />
         </div>
     </div>
 
@@ -157,6 +157,7 @@
                 {
                     item.CreatedBy = appInfo.CurrentUserId;
                     item.AssignedTo = appInfo.CurrentUserId;
+                    item.Status = TaskStatusEnum.InProgress;
 
                     await manager.InsertAsync(item);
                 }
@@ -165,7 +166,7 @@
                     await manager.UpdateAsync(item);
                 }
 
-                navigation.NavigateTo("/tasks");
+                navigation.NavigateTo("/");
             }
         }
         catch (Exception ex)
