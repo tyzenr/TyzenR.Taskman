@@ -96,6 +96,11 @@
         return base.OnInitializedAsync();
     }
 
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
     private async void RefreshDataAsync()
     {
         if (item == null)
