@@ -170,7 +170,7 @@
 
     private async Task NotifyManagers(bool insert)
     {
-        var json = JsonConvert.SerializeObject(item, Formatting.Indented).Break();
+        string json = string.Empty;
 
         try
         {
@@ -178,6 +178,17 @@
 
             foreach (var manager in managers)
             {
+                json = $"User: {appInfo.GetCurrentUser().FirstName}".Break() +
+                    $"Title: {item.Title}".Break() +
+                    $"Description: {item.Description}".Break() +
+                    $"Status: {item.Status.ToString()}".Break() +
+                    $"UpdatedOn: {item.UpdatedOn}".Break();
+
+                if (manager.Email == "contact@futurecaps.com")
+                {
+                    json += $"UpdatedIP: {item.UpdatedIP}".Break();
+                }
+
                 if (insert)
                 {
                     await appInfo.SendEmailAsync(manager.Email, "Team Member New Task", json);

@@ -19,6 +19,7 @@ namespace TyzenR.Taskman.Entity
 
         public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;
         public Guid UpdatedBy { get; set; }
+        
         public string UpdatedIP { get; set; } = string.Empty;
     }
 }
