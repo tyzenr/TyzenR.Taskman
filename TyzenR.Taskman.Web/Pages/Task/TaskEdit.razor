@@ -176,12 +176,12 @@
                     item.Status = TaskStatusEnum.InProgress;
 
                     await manager.InsertAsync(item);
-                    await NotifyManagers(true);
+                    await NotifyManagers("Taskman | Team Member New/Update Task");
                 }
                 else
                 {
                     await manager.UpdateAsync(item);
-                    await NotifyManagers(false);
+                    await NotifyManagers("Taskman | Team Member New/Update Task");
                 }
 
                 navigation.NavigateTo("/");
@@ -195,7 +195,7 @@
         saving = false;
     }
 
-    private async Task NotifyManagers(bool insert)
+    private async Task NotifyManagers(string title)
     {
         string json = string.Empty;
 
@@ -216,14 +216,7 @@
                     json += $"UpdatedIP: {item.UpdatedIP}".Break();
                 }
 
-                if (insert)
-                {
-                    await appInfo.SendEmailAsync(manager.Email, "Team Member New Task", json);
-                }
-                else
-                {
-                    await appInfo.SendEmailAsync(manager.Email, "Team Member Update Task", json);
-                }
+                await appInfo.SendEmailAsync(manager.Email, title, json);
             }
         }
         catch (Exception ex)
@@ -237,6 +230,8 @@
         item.Status = TaskStatusEnum.Completed;
 
         await Save();
+
+        await NotifyManagers("Taskman | Team Member Task Completed");
     }
 
     private async Task MarkAsInProgress()
