@@ -23,9 +23,9 @@
         AppSettings appSettings = settings.Value;
         if (!string.IsNullOrEmpty(appSettings.AccountUrl))
         {
-            var loginUrl = $"{appSettings.AccountUrl}/{ApplicationEnum.Publisher.ToString()}";
+            var loginUrl = $"{appSettings.AccountUrl}/{ApplicationEnum.Taskman.ToString()}";
 
-            var ReturnUrl = appSettings.PublisherUrl;
+            var ReturnUrl = appSettings.TaskmanUrl;
 
             var Url = $"{loginUrl}?redirectUrl={ReturnUrl}";
 
