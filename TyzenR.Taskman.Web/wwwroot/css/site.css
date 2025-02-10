@@ -18,6 +18,19 @@ a, .btn-link {
     border-color: #1861ac;
 }
 
+
+.btn-green {
+    color: #fff;
+    background-color: #42b61a;
+    border-color: #1861ac;
+}
+
+.btn-teal {
+    color: #fff;
+    background-color: #1d8598;
+    border-color: #1861ac;
+}
+
 .content {
     padding-top: 1.1rem;
 }
