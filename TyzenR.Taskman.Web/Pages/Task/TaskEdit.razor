@@ -58,12 +58,21 @@
     <div class="form-group row m-1">
         <label class="col-sm-2 " for="Description">Assigned To:</label>
         <div class="col-sm-10">
-            <InputSelect class="form-select" @bind-Value="item.AssignedTo">
+            <InputSelect class="form-select" @bind-Value="item.AssignedTo" >
                 @foreach (TeamMemberEntity member in teamMembers)
                 {
-                    <option value="@member.Id">
-                        @member.Name
-                    </option>
+                    if (member.Id == item.AssignedTo)
+                    {
+                        <option value="@member.Id" selected>
+                            @member.Name
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@member.Id" >
+                            @member.Name
+                        </option>
+                    }  
                 }
             </InputSelect>
         </div>
@@ -160,10 +169,6 @@
                 item.UpdatedBy = appInfo.CurrentUserId;
                 item.UpdatedOn = DateTime.Now;
                 item.UpdatedIP = appInfo.CurrentUserIPAddress;
-                if (teamMembers.Count <= 1)
-                {
-                    item.AssignedTo = appInfo.CurrentUserId;
-                }
 
                 if (action == "Add")
                 {

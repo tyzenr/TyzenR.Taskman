@@ -71,7 +71,10 @@ namespace TyzenR.Taskman.Managers
             result.Add(new TeamMemberEntity() { Id = user.Id, Name = user.FirstName });     
             foreach(var member in members)
             {
-                result.Add(new TeamMemberEntity() { Id = member.Id, Name = users.FirstOrDefault(u => u.Id == member.Id).FirstName });
+                if (!result.Any(r => r.Id == member.MemberId))
+                {
+                    result.Add(new TeamMemberEntity() { Id = member.MemberId, Name = users.FirstOrDefault(u => u.Id == member.MemberId)?.FirstName });
+                }
             }
 
             return result;
