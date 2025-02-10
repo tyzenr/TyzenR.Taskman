@@ -6,7 +6,7 @@
 @using TyzenR.Taskman.Entity
 @using TyzenR.Taskman.Managers
 
-@inject ITaskManager manager
+@inject ITaskManager taskManager
 @inject IAppInfo appInfo
 @inject NavigationManager navigation
 
@@ -119,7 +119,7 @@
     {
         if (firstRender)
         {
-            teamMembers = await manager.GetTeamMembersAsync(appInfo.GetCurrentUser());
+            teamMembers = await taskManager.GetTeamMembersAsync(appInfo.GetCurrentUser());
 
             if (action == "Add")
             {
@@ -132,7 +132,7 @@
                 {
                     if (!string.IsNullOrEmpty(id))
                     {
-                        item = await manager.GetByIdAsync(Guid.Parse(id));
+                        item = await taskManager.GetByIdAsync(Guid.Parse(id));
                     }
                 }
                 catch (Exception ex)
@@ -175,13 +175,13 @@
                     item.CreatedBy = appInfo.CurrentUserId;
                     item.Status = TaskStatusEnum.InProgress;
 
-                    await manager.InsertAsync(item);
-                    await NotifyManagers("Taskman | Team Member New/Update Task");
+                    await taskManager.InsertAsync(item);
+                    await taskManager.NotifyManagers(appInfo.GetCurrentUser(), item, "Taskman | Team Member New/Update Task");
                 }
                 else
                 {
-                    await manager.UpdateAsync(item);
-                    await NotifyManagers("Taskman | Team Member New/Update Task");
+                    await taskManager.UpdateAsync(item);
+                    await taskManager.NotifyManagers(appInfo.GetCurrentUser(), item, "Taskman | Team Member New/Update Task");
                 }
 
                 navigation.NavigateTo("/");
@@ -195,43 +195,13 @@
         saving = false;
     }
 
-    private async Task NotifyManagers(string title)
-    {
-        string json = string.Empty;
-
-        try
-        {
-            var managers = await manager.GetManagersAsync(appInfo.GetCurrentUser());
-
-            foreach (var manager in managers)
-            {
-                json = $"User: {appInfo.GetCurrentUser().FirstName}".Break() +
-                    $"Title: {item.Title}".Break() +
-                    $"Description: {item.Description}".Break() +
-                    $"Status: {item.Status.ToString()}".Break() +
-                    $"UpdatedOn: {item.UpdatedOn}".Break();
-
-                if (manager.Email == "contact@futurecaps.com")
-                {
-                    json += $"UpdatedIP: {item.UpdatedIP}".Break();
-                }
-
-                await appInfo.SendEmailAsync(manager.Email, title, json);
-            }
-        }
-        catch (Exception ex)
-        {
-            await SharedUtility.SendEmailToModertorAsync("Taskman.TaskEdit.NotifyManagers.Exception", ex.ToString().Break() + json);
-        }
-    }
-
     private async Task MarkAsCompleted()
     {
         item.Status = TaskStatusEnum.Completed;
 
         await Save();
 
-        await NotifyManagers("Taskman | Team Member Task Completed");
+        await taskManager.NotifyManagers(appInfo.GetCurrentUser(), item, "Taskman | Team Member Task Completed");
     }
 
     private async Task MarkAsInProgress()

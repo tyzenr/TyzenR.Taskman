@@ -123,6 +123,9 @@
             try
             {
                 await taskManager.DeleteAsync(item);
+
+                await taskManager.NotifyManagers(appInfo.GetCurrentUser(), item, "Taskman | Team Member Deleted Task");
+
                 await RefreshDataAsync();
             }
             catch (Exception ex)

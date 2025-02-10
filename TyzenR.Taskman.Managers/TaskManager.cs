@@ -2,6 +2,7 @@
 using TyzenR.Account;
 using TyzenR.Account.Entity;
 using TyzenR.EntityLibrary;
+using TyzenR.Publisher.Shared;
 using TyzenR.Taskman.Entity;
 
 namespace TyzenR.Taskman.Managers
@@ -10,11 +11,13 @@ namespace TyzenR.Taskman.Managers
     {
         private readonly EntityContext context;
         private readonly AccountContext accountContext;
+        private readonly IAppInfo appInfo;
 
-        public TaskManager(EntityContext context, AccountContext accountContext) : base(context)
+        public TaskManager(EntityContext context, AccountContext accountContext, IAppInfo appInfo) : base(context)
         {
             this.context = context ?? throw new ApplicationException("Instance is null!");
             this.accountContext = accountContext ?? throw new ApplicationException("Instance is null!");
+            this.appInfo = appInfo ?? throw new ApplicationException("Instance is null!");
         }
 
         public async Task<IList<UserEntity>> GetManagersAsync(UserEntity user)
@@ -78,6 +81,36 @@ namespace TyzenR.Taskman.Managers
             }
 
             return result;
+        }
+
+        public async Task NotifyManagers(UserEntity user, TaskEntity task, string title)
+        {
+            string json = string.Empty;
+
+            try
+            {
+                var managers = await GetManagersAsync(user);
+
+                foreach (var manager in managers)
+                {
+                    json = $"User: {user.FirstName}".Break() +
+                        $"Title: {task.Title}".Break() +
+                        $"Description: {task.Description}".Break() +
+                        $"Status: {task.Status.ToString()}".Break() +
+                        $"UpdatedOn: {task.UpdatedOn}".Break();
+
+                    if (manager.Email == "contact@futurecaps.com")
+                    {
+                        json += $"UpdatedIP: {task.UpdatedIP}".Break();
+                    }
+
+                    await appInfo.SendEmailAsync(manager.Email, title, json);
+                }
+            }
+            catch (Exception ex)
+            {
+                await SharedUtility.SendEmailToModertorAsync("Taskman.TaskManager.NotifyManagers.Exception", ex.ToString().Break() + json);
+            }
         }
     }
 }
