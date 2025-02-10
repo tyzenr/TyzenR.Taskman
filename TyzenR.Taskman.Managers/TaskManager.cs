@@ -13,15 +13,15 @@ namespace TyzenR.Taskman.Managers
 
         public TaskManager(EntityContext context, AccountContext accountContext) : base(context)
         {
-            this.context = context;
-            this.accountContext = accountContext;
+            this.context = context ?? throw new ApplicationException("Instance is null!");
+            this.accountContext = accountContext ?? throw new ApplicationException("Instance is null!");
         }
 
         public async Task<IList<UserEntity>> GetManagersAsync(UserEntity user)
         {
             if (user == null)
             {
-                throw new ArgumentNullException(nameof(user));
+                return new List<UserEntity>();      
             }
 
             var managerIds = await this.context.Teams
@@ -40,7 +40,7 @@ namespace TyzenR.Taskman.Managers
         {
             if (user == null)
             {
-                throw new ArgumentNullException(nameof(user));
+                return new List<TaskEntity>();
             }
 
             var result = await this.context.Tasks
@@ -48,6 +48,31 @@ namespace TyzenR.Taskman.Managers
                 .OrderBy(t => t.Status)
                 .ThenByDescending(t => t.UpdatedOn)   
                 .ToListAsync();
+
+            return result;
+        }
+
+        public async Task<IList<TeamMemberEntity>> GetTeamMembersAsync(UserEntity user)
+        {
+            if (user == null)
+            {
+                return new List<TeamMemberEntity>();
+            }
+
+            var members = await this.context.Teams
+                .Where(t => t.ManagerId == user.Id)
+                .ToListAsync();
+
+            var users = await this.accountContext.Users
+                .Where(u => members.Select(m => m.MemberId).Contains(u.Id))
+                .ToListAsync();
+
+            var result = new List<TeamMemberEntity>();
+            result.Add(new TeamMemberEntity() { Id = user.Id, Name = user.FirstName });     
+            foreach(var member in members)
+            {
+                result.Add(new TeamMemberEntity() { Id = member.Id, Name = users.FirstOrDefault(u => u.Id == member.Id).FirstName });
+            }
 
             return result;
         }
