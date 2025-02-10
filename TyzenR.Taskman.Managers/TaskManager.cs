@@ -19,6 +19,11 @@ namespace TyzenR.Taskman.Managers
 
         public async Task<IList<UserEntity>> GetManagersAsync(UserEntity user)
         {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
             var managerIds = await this.context.Teams
                 .Where(t => t.MemberId == user.Id)
                 .Select(t => t.ManagerId)
@@ -33,6 +38,11 @@ namespace TyzenR.Taskman.Managers
 
         public async Task<IList<TaskEntity>> GetTasksForUserAsync(UserEntity user)
         {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
             var result = await this.context.Tasks
                 .Where(t => (t.Status == TaskStatusEnum.InProgress || t.Status == TaskStatusEnum.Completed) && (t.CreatedBy == user.Id || t.AssignedTo == user.Id))
                 .OrderBy(t => t.Status)
