@@ -46,6 +46,7 @@ namespace TyzenR.Taskman.Managers
             var result = await this.context.Tasks
                 .Where(t => (t.Status == TaskStatusEnum.InProgress || t.Status == TaskStatusEnum.Completed) && (t.CreatedBy == user.Id || t.AssignedTo == user.Id))
                 .OrderBy(t => t.Status)
+                .ThenByDescending(t => t.UpdatedOn)   
                 .ToListAsync();
 
             return result;
