@@ -33,17 +33,12 @@ namespace TyzenR.Taskman.Managers
 
         public async Task<IList<TaskEntity>> GetTasksForUserAsync(UserEntity user)
         {
-            var result1 = await this.context.Tasks
-                .Where(t => t.Status == TaskStatusEnum.InProgress && (t.CreatedBy == user.Id || t.AssignedTo == user.Id))
+            var result = await this.context.Tasks
+                .Where(t => (t.Status == TaskStatusEnum.InProgress || t.Status == TaskStatusEnum.Completed) && (t.CreatedBy == user.Id || t.AssignedTo == user.Id))
+                .OrderBy(t => t.Status)
                 .ToListAsync();
 
-            var result2 = await this.context.Tasks
-                .Where(t => t.Status == TaskStatusEnum.Completed && (t.CreatedBy == user.Id || t.AssignedTo == user.Id))
-                .ToListAsync();
-
-            result1.AddRange(result2);
-
-            return result1;
+            return result;
         }
     }
 }

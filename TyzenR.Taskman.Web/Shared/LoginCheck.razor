@@ -1,8 +1,8 @@
 
-@inject IHttpContextAccessor _httpContextAccessor;
+@inject IHttpContextAccessor httpContextAccessor;
 
 @{
-    var User = _httpContextAccessor.HttpContext?.User;
+    var User = httpContextAccessor.HttpContext?.User;
 }
 
 @if (User != null && User.Identity.IsAuthenticated)
