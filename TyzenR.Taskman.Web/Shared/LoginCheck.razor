@@ -1,5 +1,12 @@
+@using Microsoft.Extensions.Options
+@using TyzenR.Account
+@using TyzenR.Account.Common
 
 @inject IHttpContextAccessor httpContextAccessor;
+@inject NavigationManager _navigationManager
+@inject IJSRuntime JS
+@inject IConfiguration configuration
+@inject IOptions<AppSettings> settings
 
 @{
     var User = httpContextAccessor.HttpContext?.User;
@@ -10,6 +17,33 @@
     <span class="navbar-text text-dark my-0 mx-2">@User.Identity.Name!</span>
     <span>&nbsp;|</span>
     <a class="z-index-3 mx-2" href="/Logout" target="_top" Match="NavLinkMatch.All">
-        Sign out<span class="oi oi-power-standby mx-1" area-hidden="true"> </span>
+        Signout<span class="oi oi-power-standby mx-1" area-hidden="true"> </span>
     </a>
+}
+else
+{
+    <a class="z-index-3 mx-2" href="/Login" target="_top" Match="NavLinkMatch.All">
+        Signin<span class="oi oi-power-standby mx-1" area-hidden="true"> </span>
+    </a>
+}
+
+@code {
+    protected async override Task OnInitializedAsync()
+    {
+        AppSettings appSettings = settings.Value;
+        if (!string.IsNullOrEmpty(appSettings.AccountUrl))
+        {
+            var loginUrl = $"{appSettings.AccountUrl}/{ApplicationEnum.Taskman.ToString()}";
+            var ReturnUrl = appSettings.TaskmanUrl;
+
+            var Url = $"{loginUrl}?redirectUrl={ReturnUrl}";
+
+            // Navigate User To Login Page if Not Authenticated
+            var user = httpContextAccessor.HttpContext?.User;
+            if (user == null || !user.Identity.IsAuthenticated)
+            {
+                _navigationManager.NavigateTo(Url, true);
+            }
+        }
+    }
 }

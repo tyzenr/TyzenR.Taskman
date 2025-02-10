@@ -101,7 +101,7 @@ try
     app.MapBlazorHub();
     app.MapFallbackToPage("/_Host");
 
-    if (Debugger.IsAttached)
+   // if (Debugger.IsAttached)
     {
         app.UseDeveloperExceptionPage();
     }
