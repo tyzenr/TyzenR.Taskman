@@ -10,23 +10,10 @@
 @inject ITaskManager taskManager
 @inject IJSRuntime JsRuntime
 @inject IAppInfo appInfo
+@inject EntityContext context
 
 <PageTitle>Tasks</PageTitle>
 <h1>Tasks</h1>
-
-@if (appInfo.GetCurrentUser() == null)
-{
-    <div class="alert alert-danger">
-        You are not logged in!
-    </div>
-}
-
-@if (!string.IsNullOrEmpty(NotifyMessage))
-{
-    <div class="alert alert-success">
-        @NotifyMessage
-    </div>
-}
 
 @if (!string.IsNullOrEmpty(ErrorMessage))
 {
@@ -39,7 +26,11 @@
     <NavLink class="btn btn-success" href="@("task/Add")">
         <i class="fa-solid fa-plus m-1"></i> Add
     </NavLink>
+
     <div style="margin-top:15px;">
+        <TyzenR.Taskman.Web.Shared.Pagination TotaPagesQuantity="totalPages" CurrentPage="currentPage" Radius="2"
+                                              SelectedPage="OnSelectedPage">
+        </TyzenR.Taskman.Web.Shared.Pagination>
     </div>
 </div>
 <table class="table">
@@ -47,7 +38,7 @@
         <tr>
             <th class="pointer" @onclick="@(() => Sort("Title"))">Title</th>
             <th class="pointer" @onclick="@(() => Sort("Action"))">Status</th>
-             <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -79,7 +70,6 @@
     private IList<TaskEntity> list = new List<TaskEntity>();
 
     private string ErrorMessage = "";
-    private string NotifyMessage = "";
     private Guid currentlySending;
     private int totalPages = 1, currentPage = 1;
     private string sortBy = "CreatedOn";
@@ -100,7 +90,16 @@
 
         try
         {
-            list = await taskManager.GetTasksForUserAsync(appInfo.GetCurrentUser());
+            var user = appInfo.GetCurrentUser();
+            if (user != null)
+            {
+
+                var query = this.context.Tasks
+                    .Where(t => (t.Status == TaskStatusEnum.InProgress || t.Status == TaskStatusEnum.Completed) && (t.CreatedBy == user.Id || t.AssignedTo == user.Id));
+
+                totalPages = (query.Count() / pageSize) + 1;
+                list = await taskManager.GetPaginatedTasksForUserAsync(query, page, pageSize, sortBy, sortDirection);
+            }
         }
         catch (Exception ex)
         {
@@ -110,18 +109,9 @@
         StateHasChanged();
     }
 
-    private async Task Sort(string sortBy)
-    {
-        this.sortBy = sortBy;
-        sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
-
-        await RefreshDataAsync();
-    }
-
     private async Task DeleteItem(TaskEntity item)
     {
         ErrorMessage = "";
-        NotifyMessage = "";
         bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "You are about to delete this item?");
         if (confirmed)
         {
@@ -139,5 +129,20 @@
                 ErrorMessage = "An error has occurred!";
             }
         }
+    }
+
+    private async Task OnSelectedPage(int page)
+    {
+        currentPage = page;
+
+        await RefreshDataAsync(page);
+    }
+
+    private async Task Sort(string sortBy)
+    {
+        this.sortBy = sortBy;
+        sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+
+        await RefreshDataAsync();
     }
 }

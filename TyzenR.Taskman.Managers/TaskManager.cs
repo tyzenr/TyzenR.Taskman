@@ -39,6 +39,39 @@ namespace TyzenR.Taskman.Managers
             return users;
         }
 
+        public async Task<IList<TaskEntity>> GetPaginatedTasksForUserAsync(IQueryable<TaskEntity> query, int page, int pageSize, string sortBy, SortDirection direction)
+        {
+            switch (sortBy)
+            {
+                case "Title":
+                    query = direction == SortDirection.Ascending
+                        ? query.OrderBy(e => e.Title)
+                        : query.OrderByDescending(e => e.Title);
+                    break;
+
+                case "Description":
+                    query = direction == SortDirection.Ascending
+                        ? query.OrderBy(e => e.Description)
+                        : query.OrderByDescending(e => e.Description);
+                    break;
+
+                case "Status":
+                    query = direction == SortDirection.Ascending
+                        ? query.OrderBy(e => e.Status)
+                        : query.OrderByDescending(e => e.Description);
+                    break;
+
+                default:
+                    query = query.OrderBy(t => t.Status)
+                        .ThenByDescending(t => t.UpdatedOn);
+                    break;
+            }
+
+            return await query.Skip((page - 1) * pageSize)
+                              .Take(pageSize)
+                              .ToListAsync();
+        }
+
         public async Task<IList<TaskEntity>> GetTasksForUserAsync(UserEntity user)
         {
             if (user == null)
