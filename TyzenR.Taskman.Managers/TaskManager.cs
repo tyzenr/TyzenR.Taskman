@@ -142,7 +142,7 @@ namespace TyzenR.Taskman.Managers
             }
             catch (Exception ex)
             {
-                await SharedUtility.SendEmailToModertorAsync("Taskman.TaskManager.NotifyManagers.Exception", ex.ToString().Break() + json);
+                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.NotifyManagers.Exception", "ip: " + appInfo.CurrentUserIPAddress + "  " + ex.ToString().Break() + json);
             }
         }
     }

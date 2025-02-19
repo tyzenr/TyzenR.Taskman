@@ -137,7 +137,7 @@
                 }
                 catch (Exception ex)
                 {
-                    await SharedUtility.SendEmailToModertorAsync("Taskman.TaskEdit.OnAfterRenderAsync.Exception", ex.ToString());
+                    await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.OnAfterRenderAsync.Exception", ex.ToString());
                     ErrorMessage = "An error has occurred!";
                 }
             }
@@ -189,7 +189,7 @@
         }
         catch (Exception ex)
         {
-            await SharedUtility.SendEmailToModertorAsync("Taskman.TaskEdit.Save", ex.ToString());
+            await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.Save", ex.ToString());
             ErrorMessage = "An error has occurred!";
         }
         saving = false;

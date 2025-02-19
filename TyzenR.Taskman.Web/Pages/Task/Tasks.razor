@@ -103,7 +103,7 @@
         }
         catch (Exception ex)
         {
-            await SharedUtility.SendEmailToModertorAsync("Taskman.Tasks.RefreshDataAsync", ex.ToString());
+            await SharedUtility.SendEmailToModeratorAsync("Taskman.Tasks.RefreshDataAsync", ex.ToString());
         }
 
         StateHasChanged();
@@ -125,7 +125,7 @@
             }
             catch (Exception ex)
             {
-                await SharedUtility.SendEmailToModertorAsync("Taskman.Tasks.DeleteItem", ex.ToString());
+                await SharedUtility.SendEmailToModeratorAsync("Taskman.Tasks.DeleteItem", ex.ToString());
                 ErrorMessage = "An error has occurred!";
             }
         }

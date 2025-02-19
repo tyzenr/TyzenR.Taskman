@@ -108,5 +108,5 @@ try
 }
 catch (Exception ex)
 {
-    await SharedUtility.SendEmailToModertorAsync("Taskman.Program.Exception", ex.ToString());
+    await SharedUtility.SendEmailToModeratorAsync("Taskman.Program.Exception", ex.ToString());
 }
