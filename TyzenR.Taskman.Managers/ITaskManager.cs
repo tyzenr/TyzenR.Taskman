@@ -10,6 +10,7 @@ namespace TyzenR.Taskman.Managers
         Task<IList<TaskEntity>> GetTasksForUserAsync(UserEntity user);
         Task<IList<UserEntity>> GetManagersAsync(UserEntity user);
         Task<IList<TeamMemberEntity>> GetTeamMembersAsync(UserEntity user);
-        Task NotifyManagers(UserEntity user, TaskEntity task, string title);
+        Task NotifyManagersAsync(UserEntity user, TaskEntity task, string title);
+        Task NotifyUserAsync(TaskEntity task, string title);
     }
 }

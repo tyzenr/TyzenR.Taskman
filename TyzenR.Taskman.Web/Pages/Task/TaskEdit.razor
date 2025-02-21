@@ -176,12 +176,13 @@
                     item.Status = TaskStatusEnum.InProgress;
 
                     await taskManager.InsertAsync(item);
-                    await taskManager.NotifyManagers(appInfo.GetCurrentUser(), item, "Taskman | Team Member New/Update Task");
+                    await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member New/Update Task");
+                    await taskManager.NotifyUserAsync(item, "New Task");
                 }
                 else
                 {
                     await taskManager.UpdateAsync(item);
-                    await taskManager.NotifyManagers(appInfo.GetCurrentUser(), item, "Taskman | Team Member New/Update Task");
+                    await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member New/Update Task");
                 }
 
                 navigation.NavigateTo("/");
@@ -201,7 +202,7 @@
 
         await Save();
 
-        await taskManager.NotifyManagers(appInfo.GetCurrentUser(), item, "Taskman | Team Member Task Completed");
+        await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member Task Completed");
     }
 
     private async Task MarkAsInProgress()

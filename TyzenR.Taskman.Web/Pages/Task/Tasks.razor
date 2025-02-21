@@ -119,7 +119,7 @@
             {
                 await taskManager.DeleteAsync(item);
 
-                await taskManager.NotifyManagers(appInfo.GetCurrentUser(), item, "Taskman | Team Member Deleted Task");
+                await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member Deleted Task");
 
                 await RefreshDataAsync();
             }

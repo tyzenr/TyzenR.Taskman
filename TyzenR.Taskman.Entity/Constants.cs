@@ -3,6 +3,7 @@
     public static class Constants
     {
         public static string ApplicationTitle = "Taskman";
+        public static string ApplicationUrl = "https://taskman.futurecaps.com";
     }
 
     public enum TaskStatusEnum
