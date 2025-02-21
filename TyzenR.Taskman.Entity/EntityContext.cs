@@ -6,6 +6,8 @@ namespace TyzenR.Taskman.Entity
     {
         public DbSet<TaskEntity> Tasks { get; set; }
         public DbSet<TeamEntity> Teams { get; set; }
+
+        public DbSet<EmailTrackerEntity> EmailTrackers { get; set; }
         public EntityContext(DbContextOptions<EntityContext> options) : base(options)
         {
             ChangeTracker.AutoDetectChangesEnabled = false;

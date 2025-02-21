@@ -147,53 +147,56 @@
 
     private async Task Save()
     {
-        saving = true;
-        ErrorMessage = "";
-
-        item.Title = item.Title.Trim();
-        item.Description = item.Description.Trim();
-
-        try
+        if (!saving)
         {
-            if (string.IsNullOrEmpty(item.Title))
-            {
-                ErrorMessage = "Title is required!";
-            }
-            else if (string.IsNullOrEmpty(item.Description))
-            {
-                ErrorMessage = "Description is required!";
-            }
+            saving = true;
+            ErrorMessage = "";
 
-            else // If valid
-            {
-                item.UpdatedBy = appInfo.CurrentUserId;
-                item.UpdatedOn = DateTime.Now;
-                item.UpdatedIP = appInfo.CurrentUserIPAddress;
+            item.Title = item.Title.Trim();
+            item.Description = item.Description.Trim();
 
-                if (action == "Add")
+            try
+            {
+                if (string.IsNullOrEmpty(item.Title))
                 {
-                    item.CreatedBy = appInfo.CurrentUserId;
-                    item.Status = TaskStatusEnum.InProgress;
-
-                    await taskManager.InsertAsync(item);
-                    await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member New/Update Task");
-                    await taskManager.NotifyUserAsync(item, "New Task");
+                    ErrorMessage = "Title is required!";
                 }
-                else
+                else if (string.IsNullOrEmpty(item.Description))
                 {
-                    await taskManager.UpdateAsync(item);
-                    await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member New/Update Task");
+                    ErrorMessage = "Description is required!";
                 }
 
-                navigation.NavigateTo("/");
+                else // If valid
+                {
+                    item.UpdatedBy = appInfo.CurrentUserId;
+                    item.UpdatedOn = DateTime.Now;
+                    item.UpdatedIP = appInfo.CurrentUserIPAddress;
+
+                    if (action == "Add")
+                    {
+                        item.CreatedBy = appInfo.CurrentUserId;
+                        item.Status = TaskStatusEnum.InProgress;
+
+                        await taskManager.InsertAsync(item);
+                        await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member New Task");
+                        await taskManager.NotifyUserAsync(item, "New Task");
+                    }
+                    else
+                    {
+                        await taskManager.UpdateAsync(item);
+                        await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member Update Task");
+                    }
+
+                    navigation.NavigateTo("/");
+                }
             }
+            catch (Exception ex)
+            {
+                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.Save", ex.ToString());
+                ErrorMessage = "An error has occurred!";
+            }
+            saving = false;
         }
-        catch (Exception ex)
-        {
-            await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.Save", ex.ToString());
-            ErrorMessage = "An error has occurred!";
-        }
-        saving = false;
     }
 
     private async Task MarkAsCompleted()

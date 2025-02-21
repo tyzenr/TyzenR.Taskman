@@ -13,12 +13,15 @@ namespace TyzenR.Taskman.Managers
     {
         private readonly IUserManager userManager;
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly EntityContext entityContext;
 
         public AppInfo(IUserManager userManager,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            EntityContext entityContext)
         {
             this.userManager = userManager ?? throw new ApplicationException("Instance is null!");
             this.httpContextAccessor = httpContextAccessor ?? throw new ApplicationException("Instance is null!");
+            this.entityContext = entityContext ?? throw new ApplicationException("Instance is null!");
         }
 
         public DateTime GetCurrentDateTime()
@@ -85,9 +88,33 @@ namespace TyzenR.Taskman.Managers
             return result;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string body)
+        public async Task SendEmailAsync(string toEmail, string subject, string body, bool tracking = true)
         {
             await SharedUtility.SendEmailAsync(toEmail, subject, body, "contact@futurecaps.com", Constants.ApplicationTitle);
+
+            if (tracking)
+            {
+                await TrackEmailAsync(Guid.Empty, subject, toEmail);
+            }
+        }
+
+        public async Task TrackEmailAsync(Guid emailId, string subject, string toEmail)
+        {
+            try
+            {
+                EmailTrackerEntity emailTracker = new EmailTrackerEntity()
+                {
+                    EmailId = emailId,
+                    Subject = subject,
+                    ToEmail = toEmail,
+                };
+                entityContext.EmailTrackers.Add(emailTracker);
+                var result = await entityContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                await SharedUtility.SendEmailToModeratorAsync("TaskMan.AppInfo.TrackEmailAsync", $"email: {toEmail} " + ex.ToString());
+            }
         }
 
         private static void SendEmailSmtp(string subject, string body, string recipient)

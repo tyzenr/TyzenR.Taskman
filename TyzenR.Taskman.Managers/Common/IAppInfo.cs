@@ -19,6 +19,7 @@ namespace TyzenR.Taskman.Managers
         Task SendEmailAsync(
             string toEmail,
             string subject,
-            string body);
+            string body,
+            bool tracking = true);
     }
 }
