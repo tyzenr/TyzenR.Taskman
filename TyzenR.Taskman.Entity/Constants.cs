@@ -12,4 +12,14 @@
         InProgress,
         Completed
     }
+
+    public enum ActionTypeEnum
+    {
+        Create,
+        Edit,
+        Delete,
+        View,
+        Complete,
+        InProgress
+    }
 }

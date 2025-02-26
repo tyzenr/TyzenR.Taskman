@@ -59,7 +59,7 @@
         <label class="col-sm-2 " for="Description">Assigned To:</label>
         <div class="col-sm-10">
             <InputSelect class="form-select" @bind-Value="item.AssignedTo" >
-                @foreach (TeamMemberEntity member in teamMembers)
+                @foreach (MemberModel member in teamMembers)
                 {
                     if (member.Id == item.AssignedTo)
                     {
@@ -113,7 +113,7 @@
     private bool saving = false;
     private string ErrorMessage = "";
 
-    private IList<TeamMemberEntity> teamMembers = new List<TeamMemberEntity>();
+    private IList<MemberModel> teamMembers = new List<MemberModel>();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

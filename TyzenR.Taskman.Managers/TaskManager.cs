@@ -95,11 +95,11 @@ namespace TyzenR.Taskman.Managers
             return result;
         }
 
-        public async Task<IList<TeamMemberEntity>> GetTeamMembersAsync(UserEntity user)
+        public async Task<IList<MemberModel>> GetTeamMembersAsync(UserEntity user)
         {
             if (user == null)
             {
-                return new List<TeamMemberEntity>();
+                return new List<MemberModel>();
             }
 
             var members = await this.context.Teams
@@ -110,13 +110,13 @@ namespace TyzenR.Taskman.Managers
                 .Where(u => members.Select(m => m.MemberId).Contains(u.Id))
                 .ToListAsync();
 
-            var result = new List<TeamMemberEntity>();
-            result.Add(new TeamMemberEntity() { Id = user.Id, Name = user.FirstName });
+            var result = new List<MemberModel>();
+            result.Add(new MemberModel() { Id = user.Id, Name = user.FirstName });
             foreach (var member in members)
             {
                 if (!result.Any(r => r.Id == member.MemberId))
                 {
-                    result.Add(new TeamMemberEntity() { Id = member.MemberId, Name = users.FirstOrDefault(u => u.Id == member.MemberId)?.FirstName });
+                    result.Add(new MemberModel() { Id = member.MemberId, Name = users.FirstOrDefault(u => u.Id == member.MemberId)?.FirstName });
                 }
             }
 

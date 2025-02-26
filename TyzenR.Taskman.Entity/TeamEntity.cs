@@ -3,29 +3,12 @@ using TyzenR.EntityLibrary;
 
 namespace TyzenR.Taskman.Entity
 {
-    [Table("Task")]
-    public class TaskEntity : BaseEntity
+    [Table("Team")]
+    public class TeamEntity : BaseEntity
     {
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-
-        public TaskStatusEnum Status { get; set; }
-
-        public double Points { get; set; } = 1;
-        public double Hours { get; set; } = 8;
-
-        public Guid CreatedBy { get; set; }
-        public Guid AssignedTo { get; set; }
+        public Guid MemberId { get; set; }
+        public Guid ManagerId { get; set; }
 
         public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;
-        public Guid UpdatedBy { get; set; }
-
-        public string UpdatedIP { get; set; } = string.Empty;
-    }
-
-    public class TeamMemberEntity
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
     }
 }
