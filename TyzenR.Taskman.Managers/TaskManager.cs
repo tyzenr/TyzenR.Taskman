@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using TyzenR.Account;
 using TyzenR.Account.Entity;
 using TyzenR.Account.Managers;
@@ -10,20 +11,23 @@ namespace TyzenR.Taskman.Managers
 {
     public class TaskManager : BaseRepository<TaskEntity>, ITaskManager
     {
-        private readonly EntityContext context;
+        private readonly EntityContext entityContext;
         private readonly AccountContext accountContext;
         private readonly IUserManager userManager;
+        private readonly IActionManager actionManager;
         private readonly IAppInfo appInfo;
 
         public TaskManager(
-            EntityContext context,
+            EntityContext entityContext,
             AccountContext accountContext,
             IUserManager userManager,
-            IAppInfo appInfo) : base(context)
+            IActionManager actionManager,
+            IAppInfo appInfo) : base(entityContext)
         {
-            this.context = context ?? throw new ApplicationException("Instance is null!");
+            this.entityContext = entityContext ?? throw new ApplicationException("Instance is null!");
             this.accountContext = accountContext ?? throw new ApplicationException("Instance is null!");
             this.userManager = userManager ?? throw new ApplicationException("Instance is null!");
+            this.actionManager = actionManager ?? throw new ApplicationException("Instance is null!");
             this.appInfo = appInfo ?? throw new ApplicationException("Instance is null!");
         }
 
@@ -34,7 +38,7 @@ namespace TyzenR.Taskman.Managers
                 return new List<UserEntity>();
             }
 
-            var managerIds = await this.context.Teams
+            var managerIds = await this.entityContext.Teams
                 .Where(t => t.MemberId == user.Id)
                 .Select(t => t.ManagerId)
                 .ToListAsync();
@@ -86,7 +90,7 @@ namespace TyzenR.Taskman.Managers
                 return new List<TaskEntity>();
             }
 
-            var result = await this.context.Tasks
+            var result = await this.entityContext.Tasks
                 .Where(t => (t.Status == TaskStatusEnum.InProgress || t.Status == TaskStatusEnum.Completed) && (t.CreatedBy == user.Id || t.AssignedTo == user.Id))
                 .OrderBy(t => t.Status)
                 .ThenByDescending(t => t.UpdatedOn)
@@ -102,7 +106,7 @@ namespace TyzenR.Taskman.Managers
                 return new List<MemberModel>();
             }
 
-            var members = await this.context.Teams
+            var members = await this.entityContext.Teams
                 .Where(t => t.ManagerId == user.Id)
                 .ToListAsync();
 
@@ -168,6 +172,28 @@ namespace TyzenR.Taskman.Managers
             {
                 await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.NotifyUserAsync.Exception", "ip: " + appInfo.CurrentUserIPAddress + "  " + ex.ToString().Break());
             }
+        }
+
+        public override async Task<TaskEntity> InsertAsync(TaskEntity entity)
+        {
+            var result = await base.InsertAsync(entity);
+            if (result != null)
+            {
+                await actionManager.SaveActionAsync(ActionTypeEnum.Add, entity);
+            }
+
+            return result;
+        }
+
+        public override async Task<bool> UpdateAsync(TaskEntity entity)
+        {
+            var result = await base.UpdateAsync(entity);
+            if (result)
+            {
+                await actionManager.SaveActionAsync(ActionTypeEnum.Edit, entity);
+            }
+
+            return result;
         }
     }
 }

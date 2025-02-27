@@ -15,7 +15,7 @@
 
     public enum ActionTypeEnum
     {
-        Create,
+        Add,
         Edit,
         Delete,
         View,

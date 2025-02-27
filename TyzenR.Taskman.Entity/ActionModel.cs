@@ -2,9 +2,10 @@
 {
     public class ActionModel
     {
-        public ActionTypeEnum ActionType { get; set; }
-        public Guid ActionUserId { get; set; }    
-        public DateTime ActionOn = DateTime.UtcNow;
-        public string TaskJson { get; set; } = string.Empty;    
+        public ActionTypeEnum Type { get; set; }
+        public Guid UserId { get; set; }    
+        public DateTime UpdatedOn = DateTime.UtcNow;
+        public string UpdatedId { get; set; } = string.Empty;   
+        public string EntityJson { get; set; } = string.Empty;    
     }
 }

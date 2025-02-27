@@ -5,6 +5,7 @@
 @using TyzenR.Publisher.Shared
 @using TyzenR.Taskman.Entity
 @using TyzenR.Taskman.Managers
+@using TyzenR.Taskman.Web.Components
 
 @inject ITaskManager taskManager
 @inject IAppInfo appInfo
@@ -100,6 +101,8 @@
         }
     </div>
 </EditForm>
+
+<TaskHistory TaskId="@id" />
 
 @code {
     [Parameter]

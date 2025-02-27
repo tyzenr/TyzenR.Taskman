@@ -1,0 +1,33 @@
+﻿@using TyzenR.Taskman.Managers
+
+@inject ITaskManager taskManager;
+@inject IAppInfo appInfo;
+
+<br />
+<h4>Task History</h4>
+
+
+
+@code {
+    private string taskId;
+
+    [Parameter]
+    public string TaskId
+    {
+        get { return taskId; }
+        set { taskId = value; OnTaskIdChanged(); }
+    }
+
+    private async Task OnTaskIdChanged()
+    {
+        await RefreshData();
+    }
+
+    private async Task RefreshData()
+    {
+        if (!string.IsNullOrEmpty(TaskId) && Guid.TryParse(TaskId, out _))
+        {
+            StateHasChanged();
+        }
+    }
+}
