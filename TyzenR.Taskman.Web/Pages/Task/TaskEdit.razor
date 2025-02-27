@@ -178,13 +178,10 @@
                         item.Status = TaskStatusEnum.InProgress;
 
                         await taskManager.InsertAsync(item);
-                        await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member New Task");
-                        await taskManager.NotifyUserAsync(item, "New Task");
                     }
                     else
                     {
                         await taskManager.UpdateAsync(item);
-                        await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member Update Task");
                     }
 
                     navigation.NavigateTo("/");
