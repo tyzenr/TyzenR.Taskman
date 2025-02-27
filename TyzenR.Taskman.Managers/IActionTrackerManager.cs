@@ -3,7 +3,7 @@ using TyzenR.Taskman.Entity;
 
 namespace TyzenR.Taskman.Managers
 {
-    public interface IActionManager : IRepository<ActionEntity>
+    public interface IActionTrackerManager : IRepository<ActionTrackerEntity>
     {
         Task<bool> SaveActionAsync(ActionTypeEnum actionType, TaskEntity entity);
         Task<IList<ActionModel>> GetActionsAsync(Guid entityId);

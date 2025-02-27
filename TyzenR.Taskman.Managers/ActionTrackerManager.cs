@@ -1,16 +1,17 @@
 ﻿using Newtonsoft.Json;
+using Radzen;
 using TyzenR.EntityLibrary;
 using TyzenR.Publisher.Shared;
 using TyzenR.Taskman.Entity;
 
 namespace TyzenR.Taskman.Managers
 {
-    public class ActionManager : BaseRepository<ActionEntity>, IActionManager
+    public class ActionTrackerManager : BaseRepository<ActionTrackerEntity>, IActionTrackerManager
     {
         private readonly EntityContext entityContext;
         private readonly IAppInfo appInfo;
 
-        public ActionManager(
+        public ActionTrackerManager(
             EntityContext entityContext,
             IAppInfo appInfo) : base(entityContext)
         {
@@ -22,11 +23,11 @@ namespace TyzenR.Taskman.Managers
         {
             try
             {
-                var action = entityContext.Actions.Where(t => t.EntityId == entity.Id).FirstOrDefault();
+                var actionTracker = entityContext.ActionTrackers.Where(t => t.EntityId == entity.Id).FirstOrDefault();
 
-                if (action == null)
+                if (actionTracker == null)
                 {
-                    action = new ActionEntity()
+                    actionTracker = new ActionTrackerEntity()
                     {
                         Actions = new List<ActionModel>()
                         {
@@ -39,17 +40,17 @@ namespace TyzenR.Taskman.Managers
                             }
                         }
                     };
-                    entityContext.Actions.Add(action);
+                    entityContext.ActionTrackers.Add(actionTracker);
                 }
                 else
                 {
-                    if (action.Actions == null)
+                    if (actionTracker.Actions == null)
                     {
-                        action.Actions = new List<ActionModel>();
+                        actionTracker.Actions = new List<ActionModel>();
                     }
 
 
-                    action.Actions.Add(new ActionModel()
+                    actionTracker.Actions.Add(new ActionModel()
                     {
                         Type = actionType,
                         UpdatedOn = appInfo.GetCurrentDateTime(),
@@ -67,9 +68,24 @@ namespace TyzenR.Taskman.Managers
             }
         }
 
-        public Task<IList<ActionModel>> GetActionsAsync(Guid entityId)
+        public async Task<IList<ActionModel>> GetActionsAsync(Guid entityId)
         {
-            throw new NotImplementedException();
+            var result = new List<ActionModel>();
+
+            try
+            {
+                var actionTracker = entityContext.ActionTrackers.Where(t => t.EntityId == entityId).FirstOrDefault();
+                if (actionTracker != null)
+                {
+                    result = actionTracker.Actions.OrderBy(a => a.UpdatedOn).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.GetActionsAsync.Exception", ex.ToString());
+            }
+            
+            return result;
         }
     }
 }

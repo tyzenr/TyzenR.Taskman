@@ -4,8 +4,8 @@ using TyzenR.EntityLibrary;
 
 namespace TyzenR.Taskman.Entity
 {
-    [Table("Action")]
-    public class ActionEntity : BaseEntity
+    [Table("ActionTracker")]
+    public class ActionTrackerEntity : BaseEntity
     {
         public Guid EntityId { get; set; }
         

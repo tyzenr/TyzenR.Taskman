@@ -14,14 +14,14 @@ namespace TyzenR.Taskman.Managers
         private readonly EntityContext entityContext;
         private readonly AccountContext accountContext;
         private readonly IUserManager userManager;
-        private readonly IActionManager actionManager;
+        private readonly IActionTrackerManager actionManager;
         private readonly IAppInfo appInfo;
 
         public TaskManager(
             EntityContext entityContext,
             AccountContext accountContext,
             IUserManager userManager,
-            IActionManager actionManager,
+            IActionTrackerManager actionManager,
             IAppInfo appInfo) : base(entityContext)
         {
             this.entityContext = entityContext ?? throw new ApplicationException("Instance is null!");
