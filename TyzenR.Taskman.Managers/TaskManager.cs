@@ -125,7 +125,7 @@ namespace TyzenR.Taskman.Managers
 
         public async Task NotifyManagersAsync(UserEntity user, TaskEntity task, string title)
         {
-            string json = string.Empty;
+            string body = string.Empty;
 
             try
             {
@@ -133,23 +133,24 @@ namespace TyzenR.Taskman.Managers
 
                 foreach (var manager in managers)
                 {
-                    json = $"User: {user.FirstName}".Break() +
+                    body = $"User: {user.FirstName}".Break() +
                         $"Title: {task.Title}".Break() +
                         $"Description: {task.Description}".Break() +
                         $"Status: {task.Status.ToString()}".Break() +
-                        $"UpdatedOn: {task.UpdatedOn}".Break();
+                        $"UpdatedOn: {task.UpdatedOn}".Break() +
+                        $"Url: {Constants.ApplicationUrl}/task/edit/{task.Id}".Break();
 
                     if (manager.Email == "contact@futurecaps.com")
                     {
-                        json += $"UpdatedIP: {task.UpdatedIP}".Break();
+                        body += $"UpdatedIP: {task.UpdatedIP}".Break();
                     }
 
-                    await appInfo.SendEmailAsync(manager.Email, title, json);
+                    await appInfo.SendEmailAsync(manager.Email, title, body);
                 }
             }
             catch (Exception ex)
             {
-                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.NotifyManagersAsync.Exception", "ip: " + appInfo.CurrentUserIPAddress + "  " + ex.ToString().Break() + json);
+                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.NotifyManagersAsync.Exception", "ip: " + appInfo.CurrentUserIPAddress + "  " + ex.ToString().Break() + body);
             }
         }
 
