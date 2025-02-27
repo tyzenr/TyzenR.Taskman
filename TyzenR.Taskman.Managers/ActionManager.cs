@@ -22,11 +22,11 @@ namespace TyzenR.Taskman.Managers
         {
             try
             {
-                var changeTracker = entityContext.Actions.Where(t => t.EntityId == entity.Id).FirstOrDefault();
+                var action = entityContext.Actions.Where(t => t.EntityId == entity.Id).FirstOrDefault();
 
-                if (changeTracker == null)
+                if (action == null)
                 {
-                    changeTracker = new ActionEntity()
+                    action = new ActionEntity()
                     {
                         Actions = new List<ActionModel>()
                         {
@@ -39,16 +39,17 @@ namespace TyzenR.Taskman.Managers
                             }
                         }
                     };
-                    entityContext.Actions.Add(changeTracker);
+                    entityContext.Actions.Add(action);
                 }
                 else
                 {
-                    if (changeTracker.Actions == null)
+                    if (action.Actions == null)
                     {
-                        changeTracker.Actions = new List<ActionModel>();
+                        action.Actions = new List<ActionModel>();
                     }
 
-                    changeTracker.Actions.Add(new ActionModel()
+
+                    action.Actions.Add(new ActionModel()
                     {
                         Type = actionType,
                         UpdatedOn = appInfo.GetCurrentDateTime(),

@@ -25,5 +25,7 @@ namespace TyzenR.Taskman.Entity
                 Actions = JsonConvert.DeserializeObject<IList<ActionModel>>(actionsJson);
             }
         }
+
+        public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;
     }
 }
