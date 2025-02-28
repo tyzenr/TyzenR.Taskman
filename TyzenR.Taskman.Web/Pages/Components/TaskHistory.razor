@@ -1,7 +1,7 @@
 ﻿@using TyzenR.Publisher.Shared
+@using TyzenR.Publisher.Shared.Constants
 @using TyzenR.Taskman.Entity
 @using TyzenR.Taskman.Managers
-@using TyzenR.Publisher.Shared
 
 @inject ITaskManager taskManager;
 @inject IActionTrackerManager actionTrackerManager;
@@ -17,6 +17,11 @@
             <b>@action.Type</b>&nbsp&nbsp;&nbsp;
             @action.UserName&nbsp;&nbsp;&nbsp;
             @action.UpdatedOn.ToIndiaTime()
+
+            @if (@appInfo.CurrentUserId == PublisherConstants.FuturecapsId)
+            {
+                @action.UpdatedIpAddress
+            }
         </p>
     </div>
 }

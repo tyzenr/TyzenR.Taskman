@@ -35,34 +35,24 @@ namespace TyzenR.Taskman.Managers
                     actionTracker = new ActionTrackerEntity()
                     {
                         EntityId = entity.Id,
-                        Actions = new List<ActionModel>()
-                        {
-                            new ActionModel()
-                            {
-                                Type = actionType,
-                                UpdatedOn = appInfo.GetCurrentDateTime(),
-                                UserId = appInfo.CurrentUserId,
-                                EntityJson = JsonConvert.SerializeObject(entity)
-                            }
-                        }
                     };
                     entityContext.ActionTrackers.Add(actionTracker);
+                    await entityContext.SaveChangesAsync();
                 }
-                else
-                {
-                    if (actionTracker.Actions == null)
-                    {
-                        actionTracker.Actions = new List<ActionModel>();
-                    }
 
-                    actionTracker.Actions.Add(new ActionModel()
-                    {
-                        Type = actionType,
-                        UpdatedOn = appInfo.GetCurrentDateTime(),
-                        UserId = appInfo.CurrentUserId,
-                        EntityJson = JsonConvert.SerializeObject(entity)
-                    });
+                if (actionTracker.Actions == null)
+                {
+                    actionTracker.Actions = new List<ActionModel>();
                 }
+
+                actionTracker.Actions.Add(new ActionModel()
+                {
+                    Type = actionType,
+                    UpdatedOn = appInfo.GetCurrentDateTime(),
+                    UserId = appInfo.CurrentUserId,
+                    UpdatedIpAddress = appInfo.CurrentUserIPAddress,
+                    EntityJson = JsonConvert.SerializeObject(entity)
+                });
 
                 entityContext.Entry(actionTracker).State = EntityState.Modified;
                 await entityContext.SaveChangesAsync();
