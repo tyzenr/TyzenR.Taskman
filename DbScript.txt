@@ -38,12 +38,12 @@ CREATE TABLE [dbo].[Team](
 GO
 
 
-CREATE TABLE [dbo].[Action](
+CREATE TABLE [dbo].[ActionTracker](
 	[Id] [uniqueidentifier] NOT NULL,
 	[EntityId] [uniqueidentifier] NOT NULL,
 	[ActionsJson] [nvarchar](max) NOT NULL,
 	[UpdatedOn] [datetime] NOT NULL,
- CONSTRAINT [PK_Team] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_ActionTracker] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]

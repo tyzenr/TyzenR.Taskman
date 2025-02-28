@@ -1,12 +1,19 @@
-﻿@using TyzenR.Taskman.Managers
+﻿@using TyzenR.Taskman.Entity
+@using TyzenR.Taskman.Managers
 
 @inject ITaskManager taskManager;
+@inject IActionTrackerManager actionTrackerManager;
 @inject IAppInfo appInfo;
 
 <br />
-<h4>Task History</h4>
+<h4 style="color:darkgrey">Task History</h4>
 
-
+@foreach (var action in actionModels)
+{
+    <div>
+        <p>@action.Type</p>
+    </div>
+}
 
 @code {
     private string taskId;
@@ -18,6 +25,8 @@
         set { taskId = value; OnTaskIdChanged(); }
     }
 
+    private IList<ActionModel> actionModels = new List<ActionModel>();
+
     private async Task OnTaskIdChanged()
     {
         await RefreshData();
@@ -27,6 +36,7 @@
     {
         if (!string.IsNullOrEmpty(TaskId) && Guid.TryParse(TaskId, out _))
         {
+            actionModels = await actionTrackerManager.GetActionsAsync(Guid.Parse(TaskId));
             StateHasChanged();
         }
     }
