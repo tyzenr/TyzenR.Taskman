@@ -8,6 +8,7 @@
 @using TyzenR.Publisher.Shared;
 
 @inject ITaskManager taskManager
+@inject IActionTrackerManager actionTrackerManager
 @inject IJSRuntime JsRuntime
 @inject IAppInfo appInfo
 @inject EntityContext context
@@ -120,6 +121,8 @@
                 await taskManager.DeleteAsync(item);
 
                 await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member Deleted Task");
+
+                await actionTrackerManager.SaveActionAsync(ActionTypeEnum.Delete, item);
 
                 await RefreshDataAsync();
             }
