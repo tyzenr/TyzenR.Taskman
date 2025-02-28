@@ -63,6 +63,7 @@ try
     builder.Services.AddTransient<IUserManager, UserManager>();
     builder.Services.AddScoped<IAppInfo, AppInfo>();
     builder.Services.AddTransient<ITaskManager, TaskManager>();
+    builder.Services.AddTransient<IActionTrackerManager, ActionTrackerManager>();
 
     builder.Services.AddCors(options =>
     {

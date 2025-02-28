@@ -22,7 +22,15 @@ namespace TyzenR.Taskman.Entity
             set
             {
                 actionsJson = value;
-                Actions = JsonConvert.DeserializeObject<IList<ActionModel>>(actionsJson);
+
+                try
+                {
+                    Actions = JsonConvert.DeserializeObject<IList<ActionModel>>(actionsJson);
+                }
+                catch (Exception ex)
+                {
+                    Actions = new List<ActionModel>();
+                }
             }
         }
 
