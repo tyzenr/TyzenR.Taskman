@@ -7,23 +7,23 @@
 @inject IActionTrackerManager actionTrackerManager;
 @inject IAppInfo appInfo;
 
-<br />
-<h4 style="color:darkgrey">Task History</h4>
-
-@foreach (var action in actionModels)
+@if (@appInfo.CurrentUserId == PublisherConstants.FuturecapsId)
 {
-    <div style="color:darkgray">
-        <p>
-            <b>@action.Type</b>&nbsp&nbsp;&nbsp;
-            @action.UserName&nbsp;&nbsp;&nbsp;
-            @action.UpdatedOn.ToIndiaTime()
+    <br />
+    <h4 style="color:darkgrey">Task History</h4>
 
-            @if (@appInfo.CurrentUserId == PublisherConstants.FuturecapsId)
-            {
+    @foreach (var action in actionModels)
+    {
+        <div style="color:darkgray">
+            <p>
+                <b>@action.Type</b>&nbsp&nbsp;&nbsp;
+                @action.UserName&nbsp;&nbsp;&nbsp;
+                @action.UpdatedOn.ToIndiaTime()
+
                 @action.UpdatedIpAddress
-            }
-        </p>
-    </div>
+            </p>
+        </div>
+    }
 }
 
 @code {
