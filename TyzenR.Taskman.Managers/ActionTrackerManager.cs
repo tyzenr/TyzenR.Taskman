@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Radzen;
+using TyzenR.Account.Managers;
 using TyzenR.EntityLibrary;
 using TyzenR.Publisher.Shared;
 using TyzenR.Taskman.Entity;
@@ -9,13 +11,16 @@ namespace TyzenR.Taskman.Managers
     public class ActionTrackerManager : BaseRepository<ActionTrackerEntity>, IActionTrackerManager
     {
         private readonly EntityContext entityContext;
+        private readonly IUserManager userManager;
         private readonly IAppInfo appInfo;
 
         public ActionTrackerManager(
             EntityContext entityContext,
+            IUserManager userManager,
             IAppInfo appInfo) : base(entityContext)
         {
             this.entityContext = entityContext ?? throw new ApplicationException("Instance is null!");
+            this.userManager = userManager ?? throw new ApplicationException("Instance is null!");
             this.appInfo = appInfo ?? throw new ApplicationException("Instance is null!");
         }
 
@@ -29,6 +34,7 @@ namespace TyzenR.Taskman.Managers
                 {
                     actionTracker = new ActionTrackerEntity()
                     {
+                        EntityId = entity.Id,
                         Actions = new List<ActionModel>()
                         {
                             new ActionModel()
@@ -49,7 +55,6 @@ namespace TyzenR.Taskman.Managers
                         actionTracker.Actions = new List<ActionModel>();
                     }
 
-
                     actionTracker.Actions.Add(new ActionModel()
                     {
                         Type = actionType,
@@ -58,6 +63,9 @@ namespace TyzenR.Taskman.Managers
                         EntityJson = JsonConvert.SerializeObject(entity)
                     });
                 }
+
+                entityContext.Entry(actionTracker).State = EntityState.Modified;
+                await entityContext.SaveChangesAsync();
 
                 return true;
             }
@@ -78,13 +86,19 @@ namespace TyzenR.Taskman.Managers
                 if (actionTracker != null)
                 {
                     result = actionTracker.Actions.OrderBy(a => a.UpdatedOn).ToList();
+
+                    foreach (var action in result)
+                    {
+                        var user = await userManager.GetByIdAsync(action.UserId);
+                        action.UserName = user?.FirstName;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.GetActionsAsync.Exception", ex.ToString());
             }
-            
+
             return result;
         }
     }

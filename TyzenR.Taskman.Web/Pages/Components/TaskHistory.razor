@@ -1,5 +1,7 @@
-﻿@using TyzenR.Taskman.Entity
+﻿@using TyzenR.Publisher.Shared
+@using TyzenR.Taskman.Entity
 @using TyzenR.Taskman.Managers
+@using TyzenR.Publisher.Shared
 
 @inject ITaskManager taskManager;
 @inject IActionTrackerManager actionTrackerManager;
@@ -10,8 +12,12 @@
 
 @foreach (var action in actionModels)
 {
-    <div>
-        <p>@action.Type</p>
+    <div style="color:darkgray">
+        <p>
+            <b>@action.Type</b>&nbsp&nbsp;&nbsp;
+            @action.UserName&nbsp;&nbsp;&nbsp;
+            @action.UpdatedOn.ToIndiaTime()
+        </p>
     </div>
 }
 

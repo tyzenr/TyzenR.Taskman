@@ -12,16 +12,22 @@ namespace TyzenR.Taskman.Entity
         [NotMapped]
         public IList<ActionModel> Actions { get; set; } = new List<ActionModel>();
 
-        private string actionsJson;
         public string ActionsJson
         {
             get
             {
-                return JsonConvert.SerializeObject(Actions);
+                var result = JsonConvert.SerializeObject(Actions);
+
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    return string.Empty;
+                }
+
+                return result;
             }
             set
             {
-                actionsJson = value;
+                var actionsJson = value;
 
                 try
                 {
