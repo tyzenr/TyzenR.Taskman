@@ -8,6 +8,7 @@
 @using TyzenR.Taskman.Web.Pages.Components
 
 @inject ITaskManager taskManager
+@inject IActionTrackerManager actionTrackerManager
 @inject IAppInfo appInfo
 @inject NavigationManager navigation
 
@@ -136,6 +137,11 @@
                     if (!string.IsNullOrEmpty(id))
                     {
                         item = await taskManager.GetByIdAsync(Guid.Parse(id));
+
+                        if (item != null)
+                        {
+                            await actionTrackerManager.TrackActionAsync(ActionTypeEnum.View, item);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -180,11 +186,22 @@
                         item.CreatedBy = appInfo.CurrentUserId;
                         item.Status = TaskStatusEnum.InProgress;
 
-                        await taskManager.InsertAsync(item);
+                        var result = await taskManager.InsertAsync(item);
+
+                        if (result != null)
+                        {
+                            await actionTrackerManager.TrackActionAsync(ActionTypeEnum.Add, result);
+                        }
+
                     }
                     else
                     {
-                        await taskManager.UpdateAsync(item);
+                        bool success = await taskManager.UpdateAsync(item);
+
+                        if (success)
+                        {
+                            await actionTrackerManager.TrackActionAsync(actionType, item);
+                        }
                     }
 
                     navigation.NavigateTo("/");
@@ -199,9 +216,12 @@
         }
     }
 
+    private ActionTypeEnum actionType = ActionTypeEnum.Edit; 
+
     private async Task MarkAsCompleted()
     {
         item.Status = TaskStatusEnum.Completed;
+        actionType = ActionTypeEnum.Complete;
 
         await Save();
 
@@ -211,6 +231,7 @@
     private async Task MarkAsInProgress()
     {
         item.Status = TaskStatusEnum.InProgress;
+        actionType = ActionTypeEnum.InProgress;
 
         await Save();
     }

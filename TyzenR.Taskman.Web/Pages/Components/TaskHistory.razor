@@ -1,4 +1,5 @@
-﻿@using TyzenR.Publisher.Shared
+﻿@using System.Diagnostics
+@using TyzenR.Publisher.Shared
 @using TyzenR.Publisher.Shared.Constants
 @using TyzenR.Taskman.Entity
 @using TyzenR.Taskman.Managers
@@ -7,7 +8,7 @@
 @inject IActionTrackerManager actionTrackerManager;
 @inject IAppInfo appInfo;
 
-@if (@appInfo.CurrentUserId == PublisherConstants.FuturecapsId)
+@if (Debugger.IsAttached || (@appInfo.CurrentUserId == PublisherConstants.FuturecapsId))
 {
     <br />
     <h4 style="color:darkgrey">Task History</h4>

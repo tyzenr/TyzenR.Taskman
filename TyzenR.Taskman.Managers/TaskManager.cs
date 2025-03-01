@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using TyzenR.Account;
 using TyzenR.Account.Entity;
 using TyzenR.Account.Managers;
@@ -172,28 +171,6 @@ namespace TyzenR.Taskman.Managers
             {
                 await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.NotifyUserAsync.Exception", "ip: " + appInfo.CurrentUserIPAddress + "  " + ex.ToString().Break());
             }
-        }
-
-        public override async Task<TaskEntity> InsertAsync(TaskEntity entity)
-        {
-            var result = await base.InsertAsync(entity);
-            if (result != null)
-            {
-                await actionManager.SaveActionAsync(ActionTypeEnum.Add, entity);
-            }
-
-            return result;
-        }
-
-        public override async Task<bool> UpdateAsync(TaskEntity entity)
-        {
-            var result = await base.UpdateAsync(entity);
-            if (result)
-            {
-                await actionManager.SaveActionAsync(ActionTypeEnum.Edit, entity);
-            }
-
-            return result;
         }
     }
 }

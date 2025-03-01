@@ -122,7 +122,7 @@
 
                 await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member Deleted Task");
 
-                await actionTrackerManager.SaveActionAsync(ActionTypeEnum.Delete, item);
+                await actionTrackerManager.TrackActionAsync(ActionTypeEnum.Delete, item);
 
                 await RefreshDataAsync();
             }

@@ -24,11 +24,14 @@ namespace TyzenR.Taskman.Managers
             this.appInfo = appInfo ?? throw new ApplicationException("Instance is null!");
         }
 
-        public async Task<bool> SaveActionAsync(ActionTypeEnum actionType, TaskEntity entity)
+        public async Task<bool> TrackActionAsync(ActionTypeEnum actionType, TaskEntity entity)
         {
             try
             {
-                var actionTracker = entityContext.ActionTrackers.Where(t => t.EntityId == entity.Id).FirstOrDefault();
+                var actionTracker = await entityContext.ActionTrackers
+                    .Where(t => t.EntityId == entity.Id)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
 
                 if (actionTracker == null)
                 {
@@ -36,7 +39,7 @@ namespace TyzenR.Taskman.Managers
                     {
                         EntityId = entity.Id,
                     };
-                    entityContext.ActionTrackers.Add(actionTracker);
+                    await entityContext.ActionTrackers.AddAsync(actionTracker);
                     await entityContext.SaveChangesAsync();
                 }
 
@@ -54,10 +57,7 @@ namespace TyzenR.Taskman.Managers
                     EntityJson = JsonConvert.SerializeObject(entity)
                 });
 
-                entityContext.Entry(actionTracker).State = EntityState.Modified;
-                await entityContext.SaveChangesAsync();
-
-                return true;
+                return this.Update(actionTracker);
             }
             catch (Exception ex)
             {
