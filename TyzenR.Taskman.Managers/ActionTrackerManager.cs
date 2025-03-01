@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Radzen;
+using System;
 using TyzenR.Account.Managers;
 using TyzenR.EntityLibrary;
 using TyzenR.Publisher.Shared;
@@ -30,7 +31,6 @@ namespace TyzenR.Taskman.Managers
             {
                 var actionTracker = await entityContext.ActionTrackers
                     .Where(t => t.EntityId == entity.Id)
-                    .AsNoTracking()
                     .FirstOrDefaultAsync();
 
                 if (actionTracker == null)
@@ -57,7 +57,10 @@ namespace TyzenR.Taskman.Managers
                     EntityJson = JsonConvert.SerializeObject(entity)
                 });
 
-                return this.Update(actionTracker);
+                var success = await this.UpdateAsync(actionTracker);
+                base.DetachAll();
+
+                return success;
             }
             catch (Exception ex)
             {
