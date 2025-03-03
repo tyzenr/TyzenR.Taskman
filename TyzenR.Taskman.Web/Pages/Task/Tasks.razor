@@ -2,6 +2,7 @@
 
 <PageTitle>Tasks</PageTitle>
 
+@using Microsoft.AspNetCore.Authorization
 @using TyzenR.EntityLibrary;
 @using TyzenR.Taskman.Entity
 @using TyzenR.Taskman.Managers;
@@ -12,6 +13,8 @@
 @inject IJSRuntime JsRuntime
 @inject IAppInfo appInfo
 @inject EntityContext context
+
+@attribute [Authorize]
 
 <PageTitle>Tasks</PageTitle>
 <h1>Tasks</h1>

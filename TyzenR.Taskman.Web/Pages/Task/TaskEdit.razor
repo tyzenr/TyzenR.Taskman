@@ -1,6 +1,7 @@
 ﻿@page "/task/{action}/{id?}"
 
 @using System.Text.Json
+@using Microsoft.AspNetCore.Authorization
 @using Newtonsoft.Json
 @using TyzenR.Publisher.Shared
 @using TyzenR.Taskman.Entity
@@ -11,6 +12,8 @@
 @inject IActionTrackerManager actionTrackerManager
 @inject IAppInfo appInfo
 @inject NavigationManager navigation
+
+@attribute [Authorize]
 
 <h3>@action Task</h3>
 
