@@ -138,7 +138,7 @@ namespace TyzenR.Taskman.Managers
                 {
                     body = $"User: {user.FirstName}".Break() +
                         $"Title: {task.Title}".Break() +
-                        $"Description: {task.Description}".Break() +
+                        $"Description: {task.Description.AddBreaks()}".Break() +
                         $"Status: {task.Status.ToString()}".Break() +
                         $"UpdatedOn: {task.UpdatedOn}".Break() +
                         $"Url: {Constants.ApplicationUrl}/task/edit/{task.Id}".Break();
