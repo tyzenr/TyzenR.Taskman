@@ -136,12 +136,12 @@ namespace TyzenR.Taskman.Managers
 
                 foreach (var manager in managers)
                 {
-                    body = $"User: {user.FirstName}".Break() +
-                        $"Title: {task.Title}".Break() +
-                        $"Description: {task.Description.AddBreaks()}".Break() +
-                        $"Status: {task.Status.ToString()}".Break() +
-                        $"UpdatedOn: {task.UpdatedOn}".Break() +
-                        $"Url: {Constants.ApplicationUrl}/task/edit/{task.Id}".Break();
+                    body = "User:".Bold() + $" {user.FirstName}".Break() +
+                        "Title: ".Bold() + $"{task.Title}".Break() +
+                        "Description: ".Bold() + $"{task.Description.AddBreaks()}".Break() +
+                        "Status: ".Bold() + $"{task.Status.ToString()}".Break() +
+                        "UpdatedOn: ".Bold() + $"{task.UpdatedOn}".Break() +
+                        "Url: ".Bold() + $"{Constants.ApplicationUrl}/task/edit/{task.Id}".Break();
 
                     if (manager.Email == "contact@futurecaps.com")
                     {
