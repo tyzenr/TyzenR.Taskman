@@ -1,6 +1,7 @@
 ﻿@page "/task/{action}/{id?}"
 
 @using System.Text.Json
+@using Blazored.TextEditor
 @using Microsoft.AspNetCore.Authorization
 @using Newtonsoft.Json
 @using TyzenR.Publisher.Shared
@@ -41,12 +42,45 @@
         </div>
     </div>
 
-    <div class="form-group row m-1">
-        <label class="col-sm-2 " for="Description">Description:</label>
-        <div class="col-sm-10">
-            <InputTextArea rows="10" required id="Description" @bind-Value="item.Description" class="form-control" />
+    <div class="form-group row m-1" style="height:350px">
+        <label class="col-sm-2 " for="Html">Html:</label>
+        <div class="col-sm-10" style="height: 350px; padding: 10px; border-radius: 4px;">
+            <BlazoredTextEditor @ref="@QuillHtml">
+                <ToolbarContent>
+                    <select class="ql-header">
+                        <option selected=""></option>
+                        <option value="1"></option>
+                        <option value="2"></option>
+                        <option value="3"></option>
+                        <option value="4"></option>
+                        <option value="5"></option>
+                    </select>
+                    <span class="ql-formats">
+                        <button class="ql-bold"></button>
+                        <button class="ql-italic"></button>
+                        <button class="ql-underline"></button>
+                        <button class="ql-strike"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <select class="ql-color"></select>
+                        <select class="ql-background"></select>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-list" value="ordered"></button>
+                        <button class="ql-list" value="bullet"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-link"></button>
+                        <button class="ql-image"></button>
+                    </span>
+                </ToolbarContent>
+                <EditorContent>
+                </EditorContent>
+            </BlazoredTextEditor>
+            <label>Parameters supported: {FirstName}</label>
         </div>
     </div>
+    <br />
 
     <div class="form-group row m-1">
         <label class="col-sm-2" for="Hours">Hours:</label>
@@ -153,9 +187,11 @@
     private bool saving = false;
     private string ErrorMessage = "";
 
+    private BlazoredTextEditor QuillHtml;
     private IList<MemberModel> teamMembers = new List<MemberModel>();
 
     private List<TaskAttachmentEntity> attachments = new List<TaskAttachmentEntity>();
+    private bool ContentLoaded = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -175,6 +211,7 @@
                     if (!string.IsNullOrEmpty(id))
                     {
                         item = await taskManager.GetByIdAsync(Guid.Parse(id));
+                        await this.QuillHtml.LoadHTMLContent(item.Description);
 
                         if (item != null)
                         {
@@ -190,6 +227,28 @@
             }
             StateHasChanged();
         }
+
+        else
+        {
+            if (!ContentLoaded)
+            {
+                bool loading = true;
+                while (loading)
+                {
+                    try
+                    {
+                        await this.QuillHtml.LoadHTMLContent(item.Description);
+                        loading = false;
+                        ContentLoaded = true;
+                    }
+                    catch
+                    {
+                        await Task.Delay(10);
+                        loading = true;
+                    }
+                }
+            }
+        }
     }
 
     private async Task Save()
@@ -200,7 +259,7 @@
             ErrorMessage = "";
 
             item.Title = item.Title.Trim();
-            item.Description = item.Description.Trim();
+            item.Description = await this.QuillHtml.GetHTML();
 
             try
             {
