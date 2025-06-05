@@ -63,7 +63,7 @@
     <div class="form-group row m-1">
         <label class="col-sm-2 " for="Description">Assigned To:</label>
         <div class="col-sm-10">
-            <InputSelect class="form-select" @bind-Value="item.AssignedTo" >
+            <InputSelect class="form-select" @bind-Value="item.AssignedTo">
                 @foreach (MemberModel member in teamMembers)
                 {
                     if (member.Id == item.AssignedTo)
@@ -74,12 +74,45 @@
                     }
                     else
                     {
-                        <option value="@member.Id" >
+                        <option value="@member.Id">
                             @member.Name
                         </option>
-                    }  
+                    }
                 }
             </InputSelect>
+        </div>
+    </div>
+
+    <br />
+    <div class="form-group row m-2">
+        <label class="col-sm-2">Attachments:</label>
+        <div class="col-sm-4">
+            <div class="custom-file-input-wrapper">
+                <label class="btn btn-secondary btn-sm" for="file-upload">Choose files</label>
+                <InputFile id="file-upload" multiple OnChange="OnFilesSelected" style="display: none;" />
+            </div>
+            <div class="mt-2">
+                @if (attachments != null && attachments.Any())
+                {
+                    <ul class="list-group">
+                        @foreach (var attachment in attachments)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="attachment-name">@attachment.FileName</span>
+                                <span>(@FormatSize(attachment.FileContent.Length))</span>
+                                <button type="button" class="btn btn-light btn-sm" @onclick="() => RemoveAttachment(attachment)">
+                                    X
+                                </button>
+
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No attachments found.</p>
+                }
+            </div>
         </div>
     </div>
 
@@ -121,6 +154,8 @@
     private string ErrorMessage = "";
 
     private IList<MemberModel> teamMembers = new List<MemberModel>();
+
+    private List<TaskAttachmentEntity> attachments = new List<TaskAttachmentEntity>();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -184,10 +219,13 @@
                     item.UpdatedOn = DateTime.Now;
                     item.UpdatedIP = appInfo.CurrentUserIPAddress;
 
+                    await UploadAttachmentsToBlob();
+
                     if (action == "Add")
                     {
                         item.CreatedBy = appInfo.CurrentUserId;
                         item.Status = TaskStatusEnum.InProgress;
+                        item.Attachments = attachments;
 
                         var result = await taskManager.InsertAsync(item);
 
@@ -195,7 +233,6 @@
                         {
                             await actionTrackerManager.TrackActionAsync(ActionTypeEnum.Add, result);
                         }
-
                     }
                     else
                     {
@@ -219,7 +256,21 @@
         }
     }
 
-    private ActionTypeEnum actionType = ActionTypeEnum.Edit; 
+    private async Task UploadAttachmentsToBlob()
+    {
+        foreach (var attachment in attachments)
+        {
+            if (attachment.FileContent != null && !string.IsNullOrEmpty(attachment.FileName) && string.IsNullOrEmpty(attachment.BlobUri))
+            {
+                using var stream = new MemoryStream(attachment.FileContent);
+
+                string contentType = FileExtensions.GetMimeTypeFromUrl(attachment.FileName);
+                attachment.BlobUri = await taskManager.UploadAttachmentToBlobAsync(stream, attachment.FileName, contentType);
+            }
+        }
+    }
+
+    private ActionTypeEnum actionType = ActionTypeEnum.Edit;
 
     private async Task MarkAsCompleted()
     {
@@ -237,5 +288,52 @@
         actionType = ActionTypeEnum.InProgress;
 
         await Save();
+    }
+
+    private async Task OnFilesSelected(InputFileChangeEventArgs e)
+    {
+        const int maxAllowedFiles = 5;
+        const long maxFileSize = 1024 * 1024 * 10; // 10 MB
+
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            if (file.Size > maxFileSize)
+            {
+                ErrorMessage = $"File {file.Name} is too large. Max file size is 10MB.";
+                continue;
+            }
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await file.OpenReadStream(maxFileSize).CopyToAsync(stream);
+                attachments.Add(new TaskAttachmentEntity { FileName = file.Name, FileContent = stream.ToArray() });
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error uploading file {file.Name}: {ex.Message}";
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private void RemoveAttachment(TaskAttachmentEntity attachment)
+    {
+        attachments.Remove(attachment);
+        StateHasChanged();
+    }
+
+    private long TotalAttachmentsSize()
+    {
+        return attachments.Sum(a => a.FileContent.Length);
+    }
+
+    private string FormatSize(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} bytes";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F2} KB";
+
+        return $"{bytes / (1024.0 * 1024.0):F2} MB";
     }
 }
