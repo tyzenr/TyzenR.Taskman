@@ -33,6 +33,14 @@ namespace TyzenR.Taskman.Managers
             this.appInfo = appInfo ?? throw new ApplicationException("Instance is null!");
         }
 
+        public async Task<List<TaskAttachmentEntity>> GetAttachmentsAsync(TaskEntity task)
+        {
+            var result = await this.entityContext.TaskAttachments.Where(a => a.TaskId == task.Id)
+                .ToListAsync();
+
+            return result;
+        }
+
         public async Task<IList<UserEntity>> GetManagersAsync(UserEntity user)
         {
             if (user == null)

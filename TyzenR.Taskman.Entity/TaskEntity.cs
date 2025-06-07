@@ -22,6 +22,6 @@ namespace TyzenR.Taskman.Entity
 
         public string UpdatedIP { get; set; } = string.Empty;
 
-        public IList<TaskAttachmentEntity> Attachments { get; set; } = new List<TaskAttachmentEntity>();    
+        public List<TaskAttachmentEntity> Attachments { get; set; } = new List<TaskAttachmentEntity>();    
     }
 }

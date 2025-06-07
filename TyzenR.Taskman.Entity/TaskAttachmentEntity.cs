@@ -3,7 +3,6 @@ using TyzenR.EntityLibrary;
 
 namespace TyzenR.Taskman.Entity
 {
-
     [Table("TaskAttachment")]
     public class TaskAttachmentEntity : BaseEntity
     {
@@ -14,10 +13,5 @@ namespace TyzenR.Taskman.Entity
         public byte[] FileContent { get; set; }
 
         public string BlobUri { get; set; }
-
-
-        [ForeignKey("TaskId")]
-
-        public TaskEntity Task { get; set; }
     }
 }

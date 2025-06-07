@@ -116,7 +116,6 @@
             </InputSelect>
         </div>
     </div>
-
     <br />
     <div class="form-group row m-2">
         <label class="col-sm-2">Attachments:</label>
@@ -149,7 +148,6 @@
             </div>
         </div>
     </div>
-
     <div class="form-group row m-1">
         <button type="submit" disabled="@saving" class="col-sm-2 btn btn-primary">
             @(saving ? "loading ..." : "Save")
@@ -211,10 +209,11 @@
                     if (!string.IsNullOrEmpty(id))
                     {
                         item = await taskManager.GetByIdAsync(Guid.Parse(id));
-                        await this.QuillHtml.LoadHTMLContent(item.Description);
 
                         if (item != null)
                         {
+                            attachments = await taskManager.GetAttachmentsAsync(item);
+                            await this.QuillHtml.LoadHTMLContent(item.Description);
                             await actionTrackerManager.TrackActionAsync(ActionTypeEnum.View, item);
                         }
                     }
@@ -317,15 +316,23 @@
 
     private async Task UploadAttachmentsToBlob()
     {
-        foreach (var attachment in attachments)
+        try
         {
-            if (attachment.FileContent != null && !string.IsNullOrEmpty(attachment.FileName) && string.IsNullOrEmpty(attachment.BlobUri))
+            foreach (var attachment in attachments)
             {
-                using var stream = new MemoryStream(attachment.FileContent);
+                if (attachment.FileContent != null && !string.IsNullOrEmpty(attachment.FileName) && string.IsNullOrEmpty(attachment.BlobUri))
+                {
+                    using var stream = new MemoryStream(attachment.FileContent);
 
-                string contentType = FileExtensions.GetMimeTypeFromUrl(attachment.FileName);
-                attachment.BlobUri = await taskManager.UploadAttachmentToBlobAsync(stream, attachment.FileName, contentType);
+                    string contentType = FileExtensions.GetMimeTypeFromUrl(attachment.FileName);
+                    attachment.BlobUri = await taskManager.UploadAttachmentToBlobAsync(stream, attachment.FileName, contentType);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error saving attachment!";
+            await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.UploadAttachmentsToBlob", ex.ToString());
         }
     }
 
