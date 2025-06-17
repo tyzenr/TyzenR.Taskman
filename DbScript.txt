@@ -51,7 +51,7 @@ CREATE TABLE [dbo].[ActionTracker](
 GO
 
 
-CREATE TABLE [dbo].[TaskAttachment](
+CREATE TABLE [dbo].[Attachment](
 	[Id] [uniqueidentifier] NOT NULL,
 	[ParentId] [uniqueidentifier] NOT NULL,
 	[FileName] [nvarchar](255) NULL,

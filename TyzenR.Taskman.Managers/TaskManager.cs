@@ -175,37 +175,5 @@ namespace TyzenR.Taskman.Managers
                 await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.NotifyUserAsync.Exception", "ip: " + appInfo.CurrentUserIPAddress + "  " + ex.ToString().Break());
             }
         }
-
-        public async Task<string> UploadAttachmentToBlobAsync(Stream fileStream, string originalFileName, string contentType)
-        {
-            if (fileStream == null || string.IsNullOrWhiteSpace(originalFileName))
-            {
-                throw new ArgumentException("Invalid file or file name.");
-            }
-
-            var restrictedExtensions = new[] { ".exe" };
-            var fileExtension = Path.GetExtension(originalFileName).ToLower();
-
-            if (restrictedExtensions.Contains(fileExtension))
-            {
-                throw new InvalidOperationException($"File type '{fileExtension}' is restricted.");
-            }
-
-            BlobServiceClient blobServiceClient = new BlobServiceClient(PublisherConstants.StorageConnectionString);
-            var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.BlobContainerName);
-
-            string blobName = $"{Guid.NewGuid()}_{originalFileName}";
-            var blobClient = blobContainerClient.GetBlobClient(blobName);
-
-            await blobClient.UploadAsync(fileStream, overwrite: true);
-
-            var blobHttpHeaders = new BlobHttpHeaders
-            {
-                ContentType = contentType
-            };
-            await blobClient.SetHttpHeadersAsync(blobHttpHeaders);
-
-            return blobClient.Uri.ToString();
-        }
     }
 }

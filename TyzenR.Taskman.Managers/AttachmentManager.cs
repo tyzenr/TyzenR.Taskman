@@ -3,6 +3,11 @@ using TyzenR.Account;
 using TyzenR.EntityLibrary;
 using TyzenR.Taskman.Entity;
 using Microsoft.EntityFrameworkCore;
+using TyzenR.Publisher.Shared;
+using Xunit.Sdk;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs;
+using TyzenR.Publisher.Shared.Constants;
 
 namespace TyzenR.Taskman.Managers
 {
@@ -36,9 +41,72 @@ namespace TyzenR.Taskman.Managers
             return result;
         }
 
-        public async Task<bool> SaveAsync(AttachmentEntity entity)
+        public async Task<bool> SaveAttachmentsAsync(IList<AttachmentEntity> attachments, Guid parentId) // TOOD: Delete
         {
-            throw new NotImplementedException();
+            try
+            {
+                foreach (var attachment in attachments)
+                {
+                    // Save to Blob
+                    if (attachment.FileContent != null && !string.IsNullOrEmpty(attachment.FileName) && string.IsNullOrEmpty(attachment.BlobUri))
+                    {
+                        using var stream = new MemoryStream(attachment.FileContent);
+
+                        string contentType = FileExtensions.GetMimeTypeFromUrl(attachment.FileName);
+                        attachment.BlobUri = await UploadAttachmentToBlobAsync(stream, attachment.FileName, contentType);
+                    }
+
+                    // Save to Db
+                    if (attachment.ParentId == Guid.Empty)
+                    {
+                        attachment.ParentId = parentId;
+                        if (attachment.Id == Guid.Empty)
+                        {
+                            await InsertAsync(attachment);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await SharedUtility.SendEmailToModeratorAsync("Tasman.AttachmentManager.SaveAttachmentsAsync", ex.ToString());
+                
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task<string> UploadAttachmentToBlobAsync(Stream fileStream, string originalFileName, string contentType)
+        {
+            if (fileStream == null || string.IsNullOrWhiteSpace(originalFileName))
+            {
+                throw new ArgumentException("Invalid file or file name.");
+            }
+
+            var restrictedExtensions = new[] { ".exe" };
+            var fileExtension = Path.GetExtension(originalFileName).ToLower();
+
+            if (restrictedExtensions.Contains(fileExtension))
+            {
+                throw new InvalidOperationException($"File type '{fileExtension}' is restricted.");
+            }
+
+            BlobServiceClient blobServiceClient = new BlobServiceClient(PublisherConstants.StorageConnectionString);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.BlobContainerName);
+
+            string blobName = $"{Guid.NewGuid()}_{originalFileName}";
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+            await blobClient.UploadAsync(fileStream, overwrite: true);
+
+            var blobHttpHeaders = new BlobHttpHeaders
+            {
+                ContentType = contentType
+            };
+            await blobClient.SetHttpHeadersAsync(blobHttpHeaders);
+
+            return blobClient.Uri.ToString();
         }
     }
 }

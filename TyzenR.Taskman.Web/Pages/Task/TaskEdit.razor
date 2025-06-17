@@ -10,7 +10,7 @@
 @using TyzenR.Taskman.Web.Pages.Components
 
 @inject ITaskManager taskManager
-@inject IAttachmentManager attachmentManager  
+@inject IAttachmentManager attachmentManager
 @inject IActionTrackerManager actionTrackerManager
 @inject IAppInfo appInfo
 @inject NavigationManager navigation
@@ -190,6 +190,7 @@
     private IList<MemberModel> teamMembers = new List<MemberModel>();
 
     private IList<AttachmentEntity> attachments = new List<AttachmentEntity>();
+    private IList<AttachmentEntity> deletedAttachments = new List<AttachmentEntity>();
     private bool ContentLoaded = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -278,14 +279,13 @@
                     item.UpdatedOn = DateTime.Now;
                     item.UpdatedIP = appInfo.CurrentUserIPAddress;
 
-                    await UploadAttachmentsToBlob();
-
                     if (action == "Add")
                     {
                         item.CreatedBy = appInfo.CurrentUserId;
                         item.Status = TaskStatusEnum.InProgress;
 
                         var result = await taskManager.InsertAsync(item);
+                        await attachmentManager.SaveAttachmentsAsync(attachments, item.Id);
 
                         if (result != null)
                         {
@@ -295,6 +295,7 @@
                     else
                     {
                         bool success = await taskManager.UpdateAsync(item);
+                        await attachmentManager.SaveAttachmentsAsync(attachments, item.Id);
 
                         if (success)
                         {
@@ -311,28 +312,6 @@
                 ErrorMessage = "An error has occurred!";
             }
             saving = false;
-        }
-    }
-
-    private async Task UploadAttachmentsToBlob()
-    {
-        try
-        {
-            foreach (var attachment in attachments)
-            {
-                if (attachment.FileContent != null && !string.IsNullOrEmpty(attachment.FileName) && string.IsNullOrEmpty(attachment.BlobUri))
-                {
-                    using var stream = new MemoryStream(attachment.FileContent);
-
-                    string contentType = FileExtensions.GetMimeTypeFromUrl(attachment.FileName);
-                    attachment.BlobUri = await taskManager.UploadAttachmentToBlobAsync(stream, attachment.FileName, contentType);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error saving attachment!";
-            await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.UploadAttachmentsToBlob", ex.ToString());
         }
     }
 
@@ -387,6 +366,8 @@
     private void RemoveAttachment(AttachmentEntity attachment)
     {
         attachments.Remove(attachment);
+        deletedAttachments.Add(attachment);
+
         StateHasChanged();
     }
 

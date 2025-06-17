@@ -5,8 +5,7 @@ namespace TyzenR.Taskman.Managers
 {
     public interface IAttachmentManager : IRepository<AttachmentEntity>
     {
-        Task<bool> SaveAsync(AttachmentEntity entity);
-
         Task<IList<AttachmentEntity>> GetAllByParentIdAsync(Guid parentId);
+        Task<bool> SaveAttachmentsAsync(IList<AttachmentEntity> attachments, Guid parentId);
     }
 }

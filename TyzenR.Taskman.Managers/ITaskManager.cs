@@ -12,6 +12,5 @@ namespace TyzenR.Taskman.Managers
         Task<IList<MemberModel>> GetTeamMembersAsync(UserEntity user);
         Task NotifyManagersAsync(UserEntity user, TaskEntity task, string title);
         Task NotifyUserAsync(TaskEntity task, string title);
-        Task<string> UploadAttachmentToBlobAsync(Stream fileStream, string originalFileName, string contentType);
     }
 }
