@@ -5,7 +5,7 @@ namespace TyzenR.Taskman.Entity
     public class EntityContext : DbContext
     {
         public DbSet<TaskEntity> Tasks { get; set; }
-        public DbSet<AttachmentEntity> TaskAttachments { get; set; }
+        public DbSet<AttachmentEntity> Attachments { get; set; }
         public DbSet<TeamEntity> Teams { get; set; }
 
         public DbSet<ActionTrackerEntity> ActionTrackers { get; set; }

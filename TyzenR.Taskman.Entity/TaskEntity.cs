@@ -21,7 +21,5 @@ namespace TyzenR.Taskman.Entity
         public Guid UpdatedBy { get; set; }
 
         public string UpdatedIP { get; set; } = string.Empty;
-
-        public List<AttachmentEntity> Attachments { get; set; } = new List<AttachmentEntity>();    
     }
 }

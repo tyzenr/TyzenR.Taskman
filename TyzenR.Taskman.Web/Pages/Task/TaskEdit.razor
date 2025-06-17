@@ -10,6 +10,7 @@
 @using TyzenR.Taskman.Web.Pages.Components
 
 @inject ITaskManager taskManager
+@inject IAttachmentManager attachmentManager  
 @inject IActionTrackerManager actionTrackerManager
 @inject IAppInfo appInfo
 @inject NavigationManager navigation
@@ -188,7 +189,7 @@
     private BlazoredTextEditor QuillHtml;
     private IList<MemberModel> teamMembers = new List<MemberModel>();
 
-    private List<AttachmentEntity> attachments = new List<AttachmentEntity>();
+    private IList<AttachmentEntity> attachments = new List<AttachmentEntity>();
     private bool ContentLoaded = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -212,7 +213,7 @@
 
                         if (item != null)
                         {
-                            attachments = await taskManager.GetAttachmentsAsync(item);
+                            attachments = await attachmentManager.GetAllByParentIdAsync(item.Id);
                             await this.QuillHtml.LoadHTMLContent(item.Description);
                             await actionTrackerManager.TrackActionAsync(ActionTypeEnum.View, item);
                         }
@@ -283,7 +284,6 @@
                     {
                         item.CreatedBy = appInfo.CurrentUserId;
                         item.Status = TaskStatusEnum.InProgress;
-                        item.Attachments = attachments;
 
                         var result = await taskManager.InsertAsync(item);
 
