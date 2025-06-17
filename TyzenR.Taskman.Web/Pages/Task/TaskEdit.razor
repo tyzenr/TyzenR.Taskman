@@ -1,6 +1,7 @@
 ﻿@page "/task/{action}/{id?}"
 
 @using System.Text.Json
+@using Blazored.TextEditor
 @using Microsoft.AspNetCore.Authorization
 @using Newtonsoft.Json
 @using TyzenR.Publisher.Shared
@@ -41,12 +42,45 @@
         </div>
     </div>
 
-    <div class="form-group row m-1">
-        <label class="col-sm-2 " for="Description">Description:</label>
-        <div class="col-sm-10">
-            <InputTextArea rows="10" required id="Description" @bind-Value="item.Description" class="form-control" />
+    <div class="form-group row m-1" style="height:350px">
+        <label class="col-sm-2 " for="Html">Html:</label>
+        <div class="col-sm-10" style="height: 350px; padding: 10px; border-radius: 4px;">
+            <BlazoredTextEditor @ref="@QuillHtml">
+                <ToolbarContent>
+                    <select class="ql-header">
+                        <option selected=""></option>
+                        <option value="1"></option>
+                        <option value="2"></option>
+                        <option value="3"></option>
+                        <option value="4"></option>
+                        <option value="5"></option>
+                    </select>
+                    <span class="ql-formats">
+                        <button class="ql-bold"></button>
+                        <button class="ql-italic"></button>
+                        <button class="ql-underline"></button>
+                        <button class="ql-strike"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <select class="ql-color"></select>
+                        <select class="ql-background"></select>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-list" value="ordered"></button>
+                        <button class="ql-list" value="bullet"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-link"></button>
+                        <button class="ql-image"></button>
+                    </span>
+                </ToolbarContent>
+                <EditorContent>
+                </EditorContent>
+            </BlazoredTextEditor>
+            <label>Parameters supported: {FirstName}</label>
         </div>
     </div>
+    <br />
 
     <div class="form-group row m-1">
         <label class="col-sm-2" for="Hours">Hours:</label>
@@ -63,7 +97,7 @@
     <div class="form-group row m-1">
         <label class="col-sm-2 " for="Description">Assigned To:</label>
         <div class="col-sm-10">
-            <InputSelect class="form-select" @bind-Value="item.AssignedTo" >
+            <InputSelect class="form-select" @bind-Value="item.AssignedTo">
                 @foreach (MemberModel member in teamMembers)
                 {
                     if (member.Id == item.AssignedTo)
@@ -74,15 +108,46 @@
                     }
                     else
                     {
-                        <option value="@member.Id" >
+                        <option value="@member.Id">
                             @member.Name
                         </option>
-                    }  
+                    }
                 }
             </InputSelect>
         </div>
     </div>
+    <br />
+    <div class="form-group row m-2">
+        <label class="col-sm-2">Attachments:</label>
+        <div class="col-sm-4">
+            <div class="custom-file-input-wrapper">
+                <label class="btn btn-secondary btn-sm" for="file-upload">Choose files</label>
+                <InputFile id="file-upload" multiple OnChange="OnFilesSelected" style="display: none;" />
+            </div>
+            <div class="mt-2">
+                @if (attachments != null && attachments.Any())
+                {
+                    <ul class="list-group">
+                        @foreach (var attachment in attachments)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="attachment-name">@attachment.FileName</span>
+                                <span>(@FormatSize(attachment.FileContent.Length))</span>
+                                <button type="button" class="btn btn-light btn-sm" @onclick="() => RemoveAttachment(attachment)">
+                                    X
+                                </button>
 
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No attachments found.</p>
+                }
+            </div>
+        </div>
+    </div>
     <div class="form-group row m-1">
         <button type="submit" disabled="@saving" class="col-sm-2 btn btn-primary">
             @(saving ? "loading ..." : "Save")
@@ -120,7 +185,11 @@
     private bool saving = false;
     private string ErrorMessage = "";
 
+    private BlazoredTextEditor QuillHtml;
     private IList<MemberModel> teamMembers = new List<MemberModel>();
+
+    private List<TaskAttachmentEntity> attachments = new List<TaskAttachmentEntity>();
+    private bool ContentLoaded = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -143,6 +212,8 @@
 
                         if (item != null)
                         {
+                            attachments = await taskManager.GetAttachmentsAsync(item);
+                            await this.QuillHtml.LoadHTMLContent(item.Description);
                             await actionTrackerManager.TrackActionAsync(ActionTypeEnum.View, item);
                         }
                     }
@@ -155,6 +226,28 @@
             }
             StateHasChanged();
         }
+
+        else
+        {
+            if (!ContentLoaded)
+            {
+                bool loading = true;
+                while (loading)
+                {
+                    try
+                    {
+                        await this.QuillHtml.LoadHTMLContent(item.Description);
+                        loading = false;
+                        ContentLoaded = true;
+                    }
+                    catch
+                    {
+                        await Task.Delay(10);
+                        loading = true;
+                    }
+                }
+            }
+        }
     }
 
     private async Task Save()
@@ -165,7 +258,7 @@
             ErrorMessage = "";
 
             item.Title = item.Title.Trim();
-            item.Description = item.Description.Trim();
+            item.Description = await this.QuillHtml.GetHTML();
 
             try
             {
@@ -184,10 +277,13 @@
                     item.UpdatedOn = DateTime.Now;
                     item.UpdatedIP = appInfo.CurrentUserIPAddress;
 
+                    await UploadAttachmentsToBlob();
+
                     if (action == "Add")
                     {
                         item.CreatedBy = appInfo.CurrentUserId;
                         item.Status = TaskStatusEnum.InProgress;
+                        item.Attachments = attachments;
 
                         var result = await taskManager.InsertAsync(item);
 
@@ -195,7 +291,6 @@
                         {
                             await actionTrackerManager.TrackActionAsync(ActionTypeEnum.Add, result);
                         }
-
                     }
                     else
                     {
@@ -219,7 +314,29 @@
         }
     }
 
-    private ActionTypeEnum actionType = ActionTypeEnum.Edit; 
+    private async Task UploadAttachmentsToBlob()
+    {
+        try
+        {
+            foreach (var attachment in attachments)
+            {
+                if (attachment.FileContent != null && !string.IsNullOrEmpty(attachment.FileName) && string.IsNullOrEmpty(attachment.BlobUri))
+                {
+                    using var stream = new MemoryStream(attachment.FileContent);
+
+                    string contentType = FileExtensions.GetMimeTypeFromUrl(attachment.FileName);
+                    attachment.BlobUri = await taskManager.UploadAttachmentToBlobAsync(stream, attachment.FileName, contentType);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error saving attachment!";
+            await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.UploadAttachmentsToBlob", ex.ToString());
+        }
+    }
+
+    private ActionTypeEnum actionType = ActionTypeEnum.Edit;
 
     private async Task MarkAsCompleted()
     {
@@ -237,5 +354,52 @@
         actionType = ActionTypeEnum.InProgress;
 
         await Save();
+    }
+
+    private async Task OnFilesSelected(InputFileChangeEventArgs e)
+    {
+        const int maxAllowedFiles = 5;
+        const long maxFileSize = 1024 * 1024 * 10; // 10 MB
+
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            if (file.Size > maxFileSize)
+            {
+                ErrorMessage = $"File {file.Name} is too large. Max file size is 10MB.";
+                continue;
+            }
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await file.OpenReadStream(maxFileSize).CopyToAsync(stream);
+                attachments.Add(new TaskAttachmentEntity { FileName = file.Name, FileContent = stream.ToArray() });
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error uploading file {file.Name}: {ex.Message}";
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private void RemoveAttachment(TaskAttachmentEntity attachment)
+    {
+        attachments.Remove(attachment);
+        StateHasChanged();
+    }
+
+    private long TotalAttachmentsSize()
+    {
+        return attachments.Sum(a => a.FileContent.Length);
+    }
+
+    private string FormatSize(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} bytes";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F2} KB";
+
+        return $"{bytes / (1024.0 * 1024.0):F2} MB";
     }
 }

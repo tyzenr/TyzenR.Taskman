@@ -64,7 +64,7 @@ namespace TyzenR.Taskman.Managers
             }
             catch (Exception ex)
             {
-                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.ChangeTrackAsync.Exception", ex.ToString());
+                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.TrackActionAsync.Exception", ex.ToString());
                 return false;
             }
         }
