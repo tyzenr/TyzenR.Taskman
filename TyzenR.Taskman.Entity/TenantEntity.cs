@@ -15,7 +15,7 @@ namespace TyzenR.Taskman.Entity
         public string Notes { get; set; }
         public string NotesToTenant { get; set; }
 
-        public string RentReminderEmails { get; set; }
+        public string ManagerEmails { get; set; }
 
         public Guid CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
