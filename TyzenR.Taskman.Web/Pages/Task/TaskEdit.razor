@@ -188,7 +188,7 @@
     private BlazoredTextEditor QuillHtml;
     private IList<MemberModel> teamMembers = new List<MemberModel>();
 
-    private List<TaskAttachmentEntity> attachments = new List<TaskAttachmentEntity>();
+    private List<AttachmentEntity> attachments = new List<AttachmentEntity>();
     private bool ContentLoaded = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -373,7 +373,7 @@
             {
                 using var stream = new MemoryStream();
                 await file.OpenReadStream(maxFileSize).CopyToAsync(stream);
-                attachments.Add(new TaskAttachmentEntity { FileName = file.Name, FileContent = stream.ToArray() });
+                attachments.Add(new AttachmentEntity { FileName = file.Name, FileContent = stream.ToArray() });
             }
             catch (Exception ex)
             {
@@ -384,7 +384,7 @@
         StateHasChanged();
     }
 
-    private void RemoveAttachment(TaskAttachmentEntity attachment)
+    private void RemoveAttachment(AttachmentEntity attachment)
     {
         attachments.Remove(attachment);
         StateHasChanged();

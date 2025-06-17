@@ -53,7 +53,7 @@ GO
 
 CREATE TABLE [dbo].[TaskAttachment](
 	[Id] [uniqueidentifier] NOT NULL,
-	[TaskId] [uniqueidentifier] NOT NULL,
+	[ParentId] [uniqueidentifier] NOT NULL,
 	[FileName] [nvarchar](255) NULL,
 	[BlobUri] [nvarchar](255) NULL,
 	[FileContent] [varbinary](max) NULL,

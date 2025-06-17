@@ -3,10 +3,10 @@ using TyzenR.EntityLibrary;
 
 namespace TyzenR.Taskman.Entity
 {
-    [Table("TaskAttachment")]
-    public class TaskAttachmentEntity : BaseEntity
+    [Table("Attachment")]
+    public class AttachmentEntity : BaseEntity
     {
-        public Guid TaskId { get; set; }
+        public Guid ParentId { get; set; }
 
         public string FileName { get; set; }
 
