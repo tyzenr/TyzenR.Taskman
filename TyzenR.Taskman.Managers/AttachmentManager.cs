@@ -41,10 +41,11 @@ namespace TyzenR.Taskman.Managers
             return result;
         }
 
-        public async Task<bool> SaveAttachmentsAsync(IList<AttachmentEntity> attachments, Guid parentId) // TOOD: Delete
+        public async Task<bool> SaveAttachmentsAsync(IList<AttachmentEntity> attachments, Guid parentId, IList<AttachmentEntity> deleted = null)
         {
             try
             {
+                // Save
                 foreach (var attachment in attachments)
                 {
                     // Save to Blob
@@ -66,11 +67,31 @@ namespace TyzenR.Taskman.Managers
                         }
                     }
                 }
+
+                // Delete
+                foreach (var attachment in deleted)
+                {
+                    if (attachment.Id != Guid.Empty)
+                    {
+                        // Delete from Blob
+                        if (!string.IsNullOrEmpty(attachment.BlobUri))
+                        {
+                            BlobServiceClient blobServiceClient = new BlobServiceClient(PublisherConstants.StorageConnectionString);
+                            var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.BlobContainerName);
+                            var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(attachment.BlobUri));
+
+                            await blobClient.DeleteIfExistsAsync();
+                        }
+
+                        // Delete from Db
+                        await DeleteAsync(attachment);
+                    }
+                }
             }
             catch (Exception ex)
             {
                 await SharedUtility.SendEmailToModeratorAsync("Tasman.AttachmentManager.SaveAttachmentsAsync", ex.ToString());
-                
+
                 return false;
             }
 
