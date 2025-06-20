@@ -14,6 +14,7 @@
 @inject IActionTrackerManager actionTrackerManager
 @inject IAppInfo appInfo
 @inject NavigationManager navigation
+@inject IJSRuntime JSRuntime;
 
 @attribute [Authorize]
 
@@ -134,10 +135,12 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span class="attachment-name">@attachment.FileName</span>
                                 <span>(@FormatSize(attachment.FileContent.Length))</span>
-                                <button type="button" class="btn btn-light btn-sm" @onclick="() => RemoveAttachment(attachment)">
+@*                                 <button type="button" class="btn btn-light btn-sm" @onclick="() => ViewAttachment(attachment)">
+                                    View
+                                </button>
+ *@                                <button type="button" class="btn btn-light btn-sm" @onclick="() => RemoveAttachment(attachment)">
                                     X
                                 </button>
-
                             </li>
                         }
                     </ul>
@@ -369,6 +372,11 @@
         deletedAttachments.Add(attachment);
 
         StateHasChanged();
+    }
+
+    private async void ViewAttachment(AttachmentEntity attachment)
+    {
+        await JSRuntime.InvokeVoidAsync("open", attachment.BlobUri, "_blank");
     }
 
     private long TotalAttachmentsSize()

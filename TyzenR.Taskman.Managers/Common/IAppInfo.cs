@@ -20,6 +20,7 @@ namespace TyzenR.Taskman.Managers
             string toEmail,
             string subject,
             string body,
-            bool tracking = true);
+            bool tracking = true,
+            List<string> attachments = null);
     }
 }
