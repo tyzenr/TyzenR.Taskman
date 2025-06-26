@@ -1,13 +1,12 @@
-﻿using TyzenR.Account.Managers;
-using TyzenR.Account;
-using TyzenR.EntityLibrary;
-using TyzenR.Taskman.Entity;
-using Microsoft.EntityFrameworkCore;
-using TyzenR.Publisher.Shared;
-using Xunit.Sdk;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Azure.Storage.Blobs;
+using Microsoft.EntityFrameworkCore;
+using TyzenR.Account;
+using TyzenR.Account.Managers;
+using TyzenR.EntityLibrary;
+using TyzenR.Publisher.Shared;
 using TyzenR.Publisher.Shared.Constants;
+using TyzenR.Taskman.Entity;
 
 namespace TyzenR.Taskman.Managers
 {
@@ -69,28 +68,31 @@ namespace TyzenR.Taskman.Managers
                 }
 
                 // Delete
-                foreach (var attachment in deleted)
+                if (deleted != null)
                 {
-                    if (attachment.Id != Guid.Empty)
+                    foreach (var attachment in deleted)
                     {
-                        // Delete from Blob
-                        if (!string.IsNullOrEmpty(attachment.BlobUri))
+                        if (attachment.Id != Guid.Empty)
                         {
-                            BlobServiceClient blobServiceClient = new BlobServiceClient(PublisherConstants.StorageConnectionString);
-                            var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.BlobContainerName);
-                            var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(attachment.BlobUri));
+                            // Delete from Blob
+                            if (!string.IsNullOrEmpty(attachment.BlobUri))
+                            {
+                                BlobServiceClient blobServiceClient = new BlobServiceClient(PublisherConstants.StorageConnectionString);
+                                var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.BlobContainerName);
+                                var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(attachment.BlobUri));
 
-                            await blobClient.DeleteIfExistsAsync();
+                                await blobClient.DeleteIfExistsAsync();
+                            }
+
+                            // Delete from Db
+                            await DeleteAsync(attachment);
                         }
-
-                        // Delete from Db
-                        await DeleteAsync(attachment);
                     }
                 }
             }
             catch (Exception ex)
             {
-                await SharedUtility.SendEmailToModeratorAsync("Tasman.AttachmentManager.SaveAttachmentsAsync", ex.ToString());
+                await SharedUtility.SendEmailToModeratorAsync("Taskman.AttachmentManager.SaveAttachmentsAsync", ex.ToString());
 
                 return false;
             }

@@ -338,13 +338,13 @@
     private async Task OnFilesSelected(InputFileChangeEventArgs e)
     {
         const int maxAllowedFiles = 5;
-        const long maxFileSize = 1024 * 1024 * 10; // 1 MB
+        const long maxFileSize = 1024 * 1024 * 100; // 100 MB
 
         foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
         {
             if (file.Size > maxFileSize)
             {
-                ErrorMessage = $"File {file.Name} is too large. Max file size is 10MB.";
+                ErrorMessage = $"File {file.Name} is too large. Max file size is 100MB.";
                 continue;
             }
 
