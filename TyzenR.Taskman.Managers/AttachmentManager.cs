@@ -1,8 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.EntityFrameworkCore;
-using TyzenR.Account;
-using TyzenR.Account.Managers;
 using TyzenR.EntityLibrary;
 using TyzenR.Publisher.Shared;
 using TyzenR.Publisher.Shared.Constants;
@@ -13,21 +11,15 @@ namespace TyzenR.Taskman.Managers
     public class AttachmentManager : BaseRepository<AttachmentEntity>, IAttachmentManager
     {
         private readonly EntityContext entityContext;
-        private readonly AccountContext accountContext;
-        private readonly IUserManager userManager;
         private readonly IActionTrackerManager actionManager;
         private readonly IAppInfo appInfo;
 
         public AttachmentManager(
             EntityContext entityContext,
-            AccountContext accountContext,
-            IUserManager userManager,
             IActionTrackerManager actionManager,
             IAppInfo appInfo) : base(entityContext)
         {
             this.entityContext = entityContext ?? throw new ApplicationException("Instance is null!");
-            this.accountContext = accountContext ?? throw new ApplicationException("Instance is null!");
-            this.userManager = userManager ?? throw new ApplicationException("Instance is null!");
             this.actionManager = actionManager ?? throw new ApplicationException("Instance is null!");
             this.appInfo = appInfo ?? throw new ApplicationException("Instance is null!");
         }
