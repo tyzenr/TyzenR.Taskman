@@ -17,6 +17,7 @@ namespace TyzenR.Taskman.Managers
         private readonly AccountContext accountContext;
         private readonly IUserManager userManager;
         private readonly IActionTrackerManager actionManager;
+        private readonly IAttachmentManager attachmentManager;
         private readonly IAppInfo appInfo;
 
         public TaskManager(
@@ -24,12 +25,14 @@ namespace TyzenR.Taskman.Managers
             AccountContext accountContext,
             IUserManager userManager,
             IActionTrackerManager actionManager,
+            IAttachmentManager attachmentManager,
             IAppInfo appInfo) : base(entityContext)
         {
             this.entityContext = entityContext ?? throw new ApplicationException("Instance is null!");
             this.accountContext = accountContext ?? throw new ApplicationException("Instance is null!");
             this.userManager = userManager ?? throw new ApplicationException("Instance is null!");
             this.actionManager = actionManager ?? throw new ApplicationException("Instance is null!");
+            this.attachmentManager = attachmentManager ?? throw new ApplicationException("Instance is null!");
             this.appInfo = appInfo ?? throw new ApplicationException("Instance is null!");
         }
 
@@ -151,7 +154,10 @@ namespace TyzenR.Taskman.Managers
                         body += $"UpdatedIP: {task.UpdatedIP}".Break();
                     }
 
-                    await appInfo.SendEmailAsync(manager.Email, title, body);
+                    var attachments = await attachmentManager.GetAllByParentIdAsync(task.Id);
+                    List<string> stringAttachments = await attachmentManager.GetStringAttachmentsAsync(attachments);
+
+                    await appInfo.SendEmailAsync(manager.Email, title, body, false, stringAttachments);
                 }
             }
             catch (Exception ex)

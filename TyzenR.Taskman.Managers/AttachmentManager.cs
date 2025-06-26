@@ -131,5 +131,50 @@ namespace TyzenR.Taskman.Managers
 
             return blobClient.Uri.ToString();
         }
+
+        public async Task<List<string>> GetStringAttachmentsAsync(IList<AttachmentEntity> emailAttachments)
+        {
+            var attachmentList = new List<string>();
+
+            foreach (var attachment in emailAttachments)
+            {
+                if (!string.IsNullOrEmpty(attachment.BlobUri))
+                {
+                    using var stream = await GetBlobAsStreamAsync(attachment.BlobUri);
+                    var memoryStream = new MemoryStream();
+                    await stream.CopyToAsync(memoryStream);
+
+                    string base64File = Convert.ToBase64String(memoryStream.ToArray());
+                    attachmentList.Add($"{attachment.FileName}|{attachment.BlobUri}|{base64File}");
+                }
+            }
+
+            return attachmentList;
+        }
+
+        public async Task<MemoryStream> GetBlobAsStreamAsync(string fileUri)
+        {
+            try
+            {
+                BlobServiceClient blobServiceClient = new BlobServiceClient(PublisherConstants.StorageConnectionString);
+                var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.BlobContainerName);
+
+                Uri uri = new Uri(fileUri);
+                string blobName = Uri.UnescapeDataString(uri.Segments[^1]);
+
+                var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+                MemoryStream memoryStream = new MemoryStream();
+                await blobClient.DownloadToAsync(memoryStream);
+
+                memoryStream.Position = 0;
+                return memoryStream;
+            }
+            catch (Exception ex)
+            {
+                await SharedUtility.SendEmailToModeratorAsync("AttachmentManager.GetBlobAsStreamAsync", $"Failed. Exception: {ex}");
+                return null;
+            }
+        }
     }
 }

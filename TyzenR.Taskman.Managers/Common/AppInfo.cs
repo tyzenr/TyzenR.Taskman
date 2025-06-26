@@ -88,9 +88,9 @@ namespace TyzenR.Taskman.Managers
             return result;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string body, bool tracking = true)
+        public async Task SendEmailAsync(string toEmail, string subject, string body, bool tracking = true, List<string> attachments = null)
         {
-            await SharedUtility.SendEmailAsync(toEmail, subject, body, "contact@futurecaps.com", Constants.ApplicationTitle);
+            await SharedUtility.SendEmailAsync(toEmail, subject, body, "contact@futurecaps.com", Constants.ApplicationTitle, attachments);
 
             if (tracking)
             {
