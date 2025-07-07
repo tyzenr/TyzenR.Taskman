@@ -9,50 +9,52 @@ using TyzenR.Publisher.Shared;
 using TyzenR.Taskman.Entity;
 using TyzenR.Taskman.Managers;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
 try
 {
+    var builder = WebApplication.CreateBuilder(args);
     var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
     IConfigurationRoot configuration;
+    builder.Services.AddRazorComponents()
+        .AddInteractiveServerComponents();
 
+    string file = string.Empty;
     if (environmentName == "Development")
     {
+        file = "appsettings.Dev.json";
         configuration = new ConfigurationBuilder()
-            .AddJsonFile($"appsettings.{environmentName}.json", optional: true)
+            .AddJsonFile(file, optional: false)
             .Build();
     }
     else
     {
+        file = "appsettings.PROD.json";
         configuration = new ConfigurationBuilder()
-            .AddJsonFile($"appsettings.PROD.json")
+            .AddJsonFile(file, false)
             .Build();
     }
 
-    AppSettings appSettings = new AppSettings();
-    string publisherConnectionString = configuration.GetConnectionString("Publisher_ConnectionString");
-    string accountConnectionString = configuration.GetConnectionString("Account_ConnectionString");
+    var appSettings = new AppSettings();
+    configuration.GetSection("AppSettings").Bind(appSettings); // Load from dynamic config NOT builder.Services.Configuration
+    builder.Services.AddSingleton<AppSettings>(appSettings);
+    appSettings.File = file;
+
     builder.Configuration.GetSection("AppSettings").Bind(appSettings);
     builder.Services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
 
     builder.Services.AddDbContext<EntityContext>(options =>
     {
         options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-        options.UseSqlServer(publisherConnectionString);
+        options.UseSqlServer(appSettings.PublisherConnectionString);
     }, ServiceLifetime.Transient);
 
     builder.Services.AddDbContext<AccountContext>(options =>
     {
         options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-        options.UseSqlServer(accountConnectionString);
+        options.UseSqlServer(appSettings.AccountConnectionString);
     }, ServiceLifetime.Transient);
 
     builder.Services.AddHttpContextAccessor();
-    builder.Services.AddTyzenrAccountAuthentication(builder);
+    builder.Services.AddTyzenRAccountAuthentication(builder, appSettings);
 
     builder.Services.AddRazorPages();
     builder.Services.AddServerSideBlazor();
@@ -101,10 +103,7 @@ try
     app.MapBlazorHub();
     app.MapFallbackToPage("/_Host");
 
-   // if (Debugger.IsAttached)
-    {
-        app.UseDeveloperExceptionPage();
-    }
+    app.UseDeveloperExceptionPage(); // Uncomment for viewing exception
 
     app.Run();
 }
