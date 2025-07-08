@@ -77,16 +77,44 @@ namespace TyzenR.Taskman.Managers
                         : query.OrderByDescending(e => e.Description);
                     break;
 
+                case "AssignedTo":
+                    query = direction == SortDirection.Ascending
+                        ? query.OrderBy(e => e.AssignedTo)
+                        : query.OrderByDescending(e => e.Description);
+                    break;
+
                 default:
                     query = query.OrderBy(t => t.Status)
                         .ThenByDescending(t => t.UpdatedOn);
                     break;
             }
 
-            return await query.Skip((page - 1) * pageSize)
-                              .Take(pageSize)
-                              .ToListAsync();
+            var result = await query.Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Populate AssignedToName for each task    
+            foreach (var task in result)
+            {
+                if (idNameDictionary.ContainsKey(task.AssignedTo))
+                {
+                    task.AssignedToName = idNameDictionary[task.AssignedTo];
+                }
+                else
+                {
+                    var user = userManager.GetUserById(task.AssignedTo);
+                    if (user != null)
+                    {
+                        task.AssignedToName = user.FirstName;
+                        idNameDictionary.Add(task.AssignedTo, task.AssignedToName);
+                    }
+                }
+            }
+
+            return result;
         }
+
+        private IDictionary<Guid, string> idNameDictionary = new Dictionary<Guid, string>();
 
         public async Task<IList<TaskEntity>> GetTasksForUserAsync(UserEntity user)
         {

@@ -22,5 +22,8 @@ namespace TyzenR.Taskman.Entity
         public Guid UpdatedBy { get; set; }
 
         public string UpdatedIP { get; set; } = string.Empty;
+
+        [NotMapped]
+        public string AssignedToName { get; set; } = string.Empty;  
     }
 }

@@ -41,8 +41,9 @@
     <thead>
         <tr>
             <th class="pointer" @onclick="@(() => Sort("Title"))">Title</th>
-            <th class="pointer" @onclick="@(() => Sort("Action"))">Status</th>
-            <th></th>
+            <th class="pointer" @onclick="@(() => Sort("Status"))">Status</th>
+            <th class="pointer" @onclick="@(() => Sort("AssignedTo"))">Assigned To</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -51,6 +52,7 @@
             <tr style="color:@GetColor(task)">
                 <td>@task.Title  </td>
                 <td>@task.Status  </td>
+                <td>@task.AssignedToName  </td>
                 <td class="text-center">
                     <NavLink class="btn btn-warning m-1" href="@("task/Edit/" + task.Id)">
                         <i class="fa-solid fa-edit m-1"></i> Edit
@@ -97,7 +99,6 @@
             var user = appInfo.GetCurrentUser();
             if (user != null)
             {
-
                 var query = this.context.Tasks
                     .Where(t => (t.Status == TaskStatusEnum.InProgress || t.Status == TaskStatusEnum.Completed) && (t.CreatedBy == user.Id || t.AssignedTo == user.Id));
 
