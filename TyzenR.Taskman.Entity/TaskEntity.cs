@@ -15,6 +15,7 @@ namespace TyzenR.Taskman.Entity
         public double Hours { get; set; } = 8;
 
         public Guid CreatedBy { get; set; }
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;  
         public Guid AssignedTo { get; set; }
 
         public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;

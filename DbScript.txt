@@ -14,6 +14,7 @@ CREATE TABLE [dbo].[Task](
 	[Hours] [float] NOT NULL,
 	[CreatedBy] [uniqueidentifier] NOT NULL,
 	[AssignedTo] [uniqueidentifier] NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
 	[UpdatedOn] [datetime] NOT NULL,
 	[UpdatedBy] [uniqueidentifier] NOT NULL,
 	[UpdatedIP] [nvarchar](max) NOT NULL,

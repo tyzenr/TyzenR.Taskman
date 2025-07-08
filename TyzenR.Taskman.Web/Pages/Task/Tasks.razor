@@ -48,7 +48,7 @@
     <tbody>
         @foreach (var task in list)
         {
-            <tr>
+            <tr style="color:@GetColor(task)">
                 <td>@task.Title  </td>
                 <td>@task.Status  </td>
                 <td class="text-center">
@@ -150,5 +150,21 @@
         sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
 
         await RefreshDataAsync();
+    }
+
+    private string GetColor(TaskEntity task)
+    {
+        if (task.CreatedOn.AddDays(10) < DateTime.UtcNow && task.Status == TaskStatusEnum.InProgress)
+        {
+            return "red";
+        }
+        else if (task.CreatedOn.AddDays(3) < DateTime.UtcNow && task.Status == TaskStatusEnum.InProgress)
+        {
+            return "orange";
+        }
+        else
+        {
+            return "black";
+        }
     }
 }
