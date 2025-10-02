@@ -4,7 +4,7 @@ using TyzenR.EntityLibrary;
 namespace TyzenR.Taskman.Entity
 {
     [Table("Task")]
-    public class TaskEntity : BaseEntity
+    public class TaskTimesheetEntity : BaseEntity
     {
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

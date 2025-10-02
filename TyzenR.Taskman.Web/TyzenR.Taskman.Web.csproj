@@ -18,4 +18,10 @@
     <ProjectReference Include="..\TyzenR.Taskman.Managers\TyzenR.Taskman.Managers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Pages\Task\TaskTimesheetEdit.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
 </Project>

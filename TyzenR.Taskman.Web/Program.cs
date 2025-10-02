@@ -62,6 +62,8 @@ try
     builder.Services.AddSyncfusionBlazor();
 
     builder.Services.AddTransient<IAccountServiceClient, AccountServiceClient>();
+    builder.Services.AddTransient<IIpAddressManager, IpAddressManager>();
+    builder.Services.AddTransient<IUserLogManager, UserLogManager>();
     builder.Services.AddTransient<IUserManager, UserManager>();
     builder.Services.AddScoped<IAppInfo, AppInfo>();
     builder.Services.AddTransient<ITaskManager, TaskManager>();

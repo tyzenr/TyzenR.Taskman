@@ -1,0 +1,347 @@
+﻿@page "/task/timesheet/{action}/{id?}"
+
+@using System.Text.Json
+@using Blazored.TextEditor
+@using Microsoft.AspNetCore.Authorization
+@using Newtonsoft.Json
+@using TyzenR.Publisher.Shared
+@using TyzenR.Taskman.Entity
+@using TyzenR.Taskman.Managers
+@using TyzenR.Taskman.Web.Pages.Components
+@using System.ComponentModel.DataAnnotations
+
+@inject ITaskManager taskManager
+@inject IAttachmentManager attachmentManager
+@inject IActionTrackerManager actionTrackerManager
+@inject IAppInfo appInfo
+@inject NavigationManager navigation
+@inject IJSRuntime JSRuntime;
+
+@attribute [Authorize]
+
+<h3>@action Task</h3>
+
+@if (showConfirmation)
+{
+    <div class="alert alert-success">
+        Saved successfully!
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ErrorMessage
+    </div>
+}
+
+<EditForm Model="@InputList" OnValidSubmit="SaveTimesheetAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+        <div class="form-group row m-1">
+        <label class="col-sm-2 " for="Title">Title:</label>
+        <div class="col-sm-10">
+            <InputText required id="Title" @bind-Value="item.Title" class="form-control" />
+        </div>
+    </div>
+
+    @for (int i = 0; i < RowsCount; i++)
+    {
+        <div class="d-flex mb-2">
+            <InputText class="form-control me-2" style="max-width: 300px;"
+                       @bind-Value="InputList[i].Description"
+                       placeholder="Description" />
+            <InputNumber class="form-control" style="max-width: 100px;"
+                         @bind-Value="InputList[i].Hours"
+                         placeholder="Hours" />
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <br />
+    <div class="form-group row m-2">
+        <label class="col-sm-2">Attachments:</label>
+        <div class="col-sm-4">
+            <div class="custom-file-input-wrapper">
+                <label class="btn btn-secondary btn-sm" for="file-upload">Choose files</label>
+                <InputFile id="file-upload" multiple OnChange="OnFilesSelected" style="display: none;" />
+            </div>
+            <div class="mt-2">
+                @if (attachments != null && attachments.Any())
+                {
+                    <ul class="list-group">
+                        @foreach (var attachment in attachments)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="attachment-name">@attachment.FileName</span>
+                                <span>(@FormatSize(attachment.FileContent.Length))</span>
+                                @*                                 <button type="button" class="btn btn-light btn-sm" @onclick="() => ViewAttachment(attachment)">
+                        View
+                        </button>
+                        *@                                <button type="button" class="btn btn-light btn-sm" @onclick="() => RemoveAttachment(attachment)">
+                                    X
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No attachments found.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="form-group row m-1">
+        <button type="submit" disabled="@saving" class="col-sm-2 btn btn-primary">
+            @(saving ? "loading ..." : "Save")
+        </button>
+        &nbsp; &nbsp;
+        @if (action == "Edit")
+        {
+            if (item.Status == TaskStatusEnum.InProgress)
+            {
+                <button class="col-sm-2 btn btn-green" @onclick="@MarkAsCompleted" disabled="@saving">
+                    Mark as Completed
+                </button>
+            }
+            else if (item.Status == TaskStatusEnum.Completed)
+            {
+                <button class="col-sm-2 btn-teal" @onclick="@MarkAsInProgress" disabled="@saving">
+                    Mark as InProgress
+                </button>
+            }
+        }
+    </div>
+</EditForm>
+
+<TaskHistory TaskId="@id" />
+
+@code {
+    [Parameter]
+    public string action { get; set; }
+
+    [Parameter]
+    public string id { get; set; }
+
+    public TaskEntity item = new TaskEntity();
+    private bool showConfirmation = false;
+    private bool saving = false;
+    private string ErrorMessage = "";
+
+    private IList<MemberModel> teamMembers = new List<MemberModel>();
+
+    private IList<AttachmentEntity> attachments = new List<AttachmentEntity>();
+    private IList<AttachmentEntity> deletedAttachments = new List<AttachmentEntity>();
+    private bool ContentLoaded = false;
+
+    public class HourEntry
+    {
+        [Required(ErrorMessage = "Description is required")]
+        public string Description { get; set; } = string.Empty;
+
+        [Range(0, 24, ErrorMessage = "Hours must be between 0 and 24")]
+        public int? Hours { get; set; }
+    }
+
+    // The list we bind to the form
+    private List<HourEntry> InputList { get; set; } = new List<HourEntry>();
+
+    // Limit rows to max 10
+    private int RowsCount => Math.Min(InputList.Count, 10);
+
+    private bool Saved = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            teamMembers = await taskManager.GetTeamMembersAsync(appInfo.GetCurrentUser());
+
+            if (action == "Add")
+            {
+                item = new TaskEntity();
+                item.AssignedTo = appInfo.CurrentUserId;
+            }
+            else
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(id))
+                    {
+                        item = await taskManager.GetByIdAsync(Guid.Parse(id));
+
+                        if (item != null)
+                        {
+                            attachments = await attachmentManager.GetAllByParentIdAsync(item.Id);
+                            await actionTrackerManager.TrackActionAsync(ActionTypeEnum.View, item);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.OnAfterRenderAsync.Exception", ex.ToString());
+                    ErrorMessage = "An error has occurred!";
+                }
+            }
+            StateHasChanged();
+        }
+
+        else
+        {
+            if (!ContentLoaded)
+            {
+                bool loading = true;
+                while (loading)
+                {
+                    try
+                    {
+                        loading = false;
+                        ContentLoaded = true;
+                    }
+                    catch
+                    {
+                        await Task.Delay(10);
+                        loading = true;
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task SaveTimesheetAsync()
+    {
+        if (!saving)
+        {
+            saving = true;
+            ErrorMessage = "";
+
+            item.Title = item.Title.Trim();
+
+            try
+            {
+                if (string.IsNullOrEmpty(item.Title))
+                {
+                    ErrorMessage = "Title is required!";
+                }
+                else if (string.IsNullOrEmpty(item.Description))
+                {
+                    ErrorMessage = "Description is required!";
+                }
+
+                else // If valid
+                {
+                    item.UpdatedBy = appInfo.CurrentUserId;
+                    item.UpdatedOn = DateTime.Now;
+                    item.UpdatedIP = appInfo.CurrentUserIPAddress;
+
+                    if (action == "Add")
+                    {
+                        item.CreatedBy = appInfo.CurrentUserId;
+                        item.Status = TaskStatusEnum.InProgress;
+
+                        var result = await taskManager.InsertAsync(item);
+                        await attachmentManager.SaveAttachmentsAsync(attachments, item.Id);
+
+                        if (result != null)
+                        {
+                            await actionTrackerManager.TrackActionAsync(ActionTypeEnum.Add, result);
+                        }
+                    }
+                    else
+                    {
+                        bool success = await taskManager.UpdateAsync(item);
+                        await attachmentManager.SaveAttachmentsAsync(attachments, item.Id, deletedAttachments);
+
+                        if (success)
+                        {
+                            await actionTrackerManager.TrackActionAsync(actionType, item);
+                        }
+                    }
+
+                    navigation.NavigateTo("/");
+                }
+            }
+            catch (Exception ex)
+            {
+                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.Save", ex.ToString());
+                ErrorMessage = "An error has occurred!";
+            }
+            saving = false;
+        }
+    }
+
+    private ActionTypeEnum actionType = ActionTypeEnum.Edit;
+
+    private async Task MarkAsCompleted()
+    {
+        item.Status = TaskStatusEnum.Completed;
+        actionType = ActionTypeEnum.Complete;
+
+        await SaveTimesheetAsync();
+
+        await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member Task Completed");
+    }
+
+    private async Task MarkAsInProgress()
+    {
+        item.Status = TaskStatusEnum.InProgress;
+        actionType = ActionTypeEnum.InProgress;
+
+        await SaveTimesheetAsync();
+    }
+
+    private async Task OnFilesSelected(InputFileChangeEventArgs e)
+    {
+        const int maxAllowedFiles = 5;
+        const long maxFileSize = 1024 * 1024 * 100; // 100 MB
+
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            if (file.Size > maxFileSize)
+            {
+                ErrorMessage = $"File {file.Name} is too large. Max file size is 100MB.";
+                continue;
+            }
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await file.OpenReadStream(maxFileSize).CopyToAsync(stream);
+                attachments.Add(new AttachmentEntity { FileName = file.Name, FileContent = stream.ToArray() });
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error uploading file {file.Name}: {ex.Message}";
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private void RemoveAttachment(AttachmentEntity attachment)
+    {
+        attachments.Remove(attachment);
+        deletedAttachments.Add(attachment);
+
+        StateHasChanged();
+    }
+
+    private async void ViewAttachment(AttachmentEntity attachment)
+    {
+        await JSRuntime.InvokeVoidAsync("open", attachment.BlobUri, "_blank");
+    }
+
+    private long TotalAttachmentsSize()
+    {
+        return attachments.Sum(a => a.FileContent.Length);
+    }
+
+    private string FormatSize(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} bytes";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F2} KB";
+
+        return $"{bytes / (1024.0 * 1024.0):F2} MB";
+    }
+}

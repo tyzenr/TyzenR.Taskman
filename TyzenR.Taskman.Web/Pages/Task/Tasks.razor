@@ -30,10 +30,12 @@
     <NavLink class="btn btn-success" href="@("task/Add")">
         <i class="fa-solid fa-plus m-1"></i> Add
     </NavLink>
-
+    <NavLink class="btn btn-success" href="@("task/timesheet/add")">
+        <i class="fa-solid fa-plus m-1"></i> Add Timesheet
+    </NavLink>
     <div style="margin-top:15px;">
         <TyzenR.Taskman.Web.Shared.Pagination TotaPagesQuantity="totalPages" CurrentPage="currentPage" Radius="2"
-                                              SelectedPage="OnSelectedPage">
+            SelectedPage="OnSelectedPage">
         </TyzenR.Taskman.Web.Shared.Pagination>
     </div>
 </div>

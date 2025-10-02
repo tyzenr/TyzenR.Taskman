@@ -6,6 +6,12 @@
         public static string ApplicationUrl = "https://taskman.futurecaps.com";
     }
 
+    public enum TaskTypeEnum
+    {
+        Default,
+        Timesheet
+    }
+
     public enum TaskStatusEnum
     {
         Unknown,
