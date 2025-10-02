@@ -2,8 +2,8 @@
 using Azure.Storage.Blobs.Models;
 using Microsoft.EntityFrameworkCore;
 using TyzenR.EntityLibrary;
+using TyzenR.Publisher;
 using TyzenR.Publisher.Shared;
-using TyzenR.Publisher.Shared.Constants;
 using TyzenR.Taskman.Entity;
 
 namespace TyzenR.Taskman.Managers
@@ -70,7 +70,7 @@ namespace TyzenR.Taskman.Managers
                             if (!string.IsNullOrEmpty(attachment.BlobUri))
                             {
                                 BlobServiceClient blobServiceClient = new BlobServiceClient(PublisherConstants.StorageConnectionString);
-                                var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.BlobContainerName);
+                                var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.AttachmentsContainerName);
                                 var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(attachment.BlobUri));
 
                                 await blobClient.DeleteIfExistsAsync();
@@ -108,7 +108,7 @@ namespace TyzenR.Taskman.Managers
             }
 
             BlobServiceClient blobServiceClient = new BlobServiceClient(PublisherConstants.StorageConnectionString);
-            var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.BlobContainerName);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.AttachmentsContainerName);
 
             string blobName = $"{Guid.NewGuid()}_{originalFileName}";
             var blobClient = blobContainerClient.GetBlobClient(blobName);
@@ -149,7 +149,7 @@ namespace TyzenR.Taskman.Managers
             try
             {
                 BlobServiceClient blobServiceClient = new BlobServiceClient(PublisherConstants.StorageConnectionString);
-                var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.BlobContainerName);
+                var blobContainerClient = blobServiceClient.GetBlobContainerClient(PublisherConstants.AttachmentsContainerName);
 
                 Uri uri = new Uri(fileUri);
                 string blobName = Uri.UnescapeDataString(uri.Segments[^1]);

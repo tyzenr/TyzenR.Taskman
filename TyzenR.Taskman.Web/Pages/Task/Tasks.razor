@@ -79,7 +79,7 @@
     private Guid currentlySending;
     private int totalPages = 1, currentPage = 1;
     private string sortBy = "CreatedOn";
-    private SortDirection sortDirection = SortDirection.Descending;
+    private SortDirectionEnum sortDirection = SortDirectionEnum.Descending;
 
     [SupplyParameterFromQuery]
     [Parameter]
@@ -148,7 +148,7 @@
     private async Task Sort(string sortBy)
     {
         this.sortBy = sortBy;
-        sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+        sortDirection = (sortDirection == SortDirectionEnum.Ascending) ? SortDirectionEnum.Descending : SortDirectionEnum.Ascending;
 
         await RefreshDataAsync();
     }

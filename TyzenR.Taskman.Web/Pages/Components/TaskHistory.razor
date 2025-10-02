@@ -1,6 +1,6 @@
 ﻿@using System.Diagnostics
+@using TyzenR.Publisher
 @using TyzenR.Publisher.Shared
-@using TyzenR.Publisher.Shared.Constants
 @using TyzenR.Taskman.Entity
 @using TyzenR.Taskman.Managers
 
@@ -19,7 +19,7 @@
             <p>
                 <b>@action.Type</b>&nbsp&nbsp;&nbsp;
                 @action.UserName&nbsp;&nbsp;&nbsp;
-                @action.UpdatedOn.ToIndiaTime();&nbsp;&nbsp;
+                @action.UpdatedOn.ToIndiaDateTime();&nbsp;&nbsp;
                 @action.UpdatedIpAddress
             </p>
         </div>

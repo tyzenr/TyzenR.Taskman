@@ -1,12 +1,9 @@
-﻿using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TyzenR.Account;
 using TyzenR.Account.Entity;
 using TyzenR.Account.Managers;
 using TyzenR.EntityLibrary;
 using TyzenR.Publisher.Shared;
-using TyzenR.Publisher.Shared.Constants;
 using TyzenR.Taskman.Entity;
 
 namespace TyzenR.Taskman.Managers
@@ -55,30 +52,30 @@ namespace TyzenR.Taskman.Managers
             return users;
         }
 
-        public async Task<IList<TaskEntity>> GetPaginatedTasksForUserAsync(IQueryable<TaskEntity> query, int page, int pageSize, string sortBy, SortDirection direction)
+        public async Task<IList<TaskEntity>> GetPaginatedTasksForUserAsync(IQueryable<TaskEntity> query, int page, int pageSize, string sortBy, SortDirectionEnum direction)
         {
             switch (sortBy)
             {
                 case "Title":
-                    query = direction == SortDirection.Ascending
+                    query = direction == SortDirectionEnum.Ascending
                         ? query.OrderBy(e => e.Title)
                         : query.OrderByDescending(e => e.Title);
                     break;
 
                 case "Description":
-                    query = direction == SortDirection.Ascending
+                    query = direction == SortDirectionEnum.Ascending
                         ? query.OrderBy(e => e.Description)
                         : query.OrderByDescending(e => e.Description);
                     break;
 
                 case "Status":
-                    query = direction == SortDirection.Ascending
+                    query = direction == SortDirectionEnum.Ascending
                         ? query.OrderBy(e => e.Status)
                         : query.OrderByDescending(e => e.Description);
                     break;
 
                 case "AssignedTo":
-                    query = direction == SortDirection.Ascending
+                    query = direction == SortDirectionEnum.Ascending
                         ? query.OrderBy(e => e.AssignedTo)
                         : query.OrderByDescending(e => e.Description);
                     break;
