@@ -30,12 +30,12 @@
     <NavLink class="btn btn-success" href="@("task/Add")">
         <i class="fa-solid fa-plus m-1"></i> Add
     </NavLink>
-    <NavLink class="btn btn-success" href="@("task/timesheet/add")">
+    <NavLink class="btn btn-success" href="@("task/timesheet/Add")">
         <i class="fa-solid fa-plus m-1"></i> Add Timesheet
     </NavLink>
     <div style="margin-top:15px;">
         <TyzenR.Taskman.Web.Shared.Pagination TotaPagesQuantity="totalPages" CurrentPage="currentPage" Radius="2"
-            SelectedPage="OnSelectedPage">
+                                              SelectedPage="OnSelectedPage">
         </TyzenR.Taskman.Web.Shared.Pagination>
     </div>
 </div>
@@ -43,6 +43,7 @@
     <thead>
         <tr>
             <th class="pointer" @onclick="@(() => Sort("Title"))">Title</th>
+            <th class="pointer" @onclick="@(() => Sort("Type"))">Type</th>
             <th class="pointer" @onclick="@(() => Sort("Status"))">Status</th>
             <th class="pointer" @onclick="@(() => Sort("AssignedTo"))">Assigned To</th>
             <th>Actions</th>
@@ -53,12 +54,22 @@
         {
             <tr style="color:@GetColor(task)">
                 <td>@task.Title  </td>
+                <td>@task.Type  </td>
                 <td>@task.Status  </td>
                 <td>@task.AssignedToName  </td>
                 <td class="text-center">
-                    <NavLink class="btn btn-warning m-1" href="@("task/Edit/" + task.Id)">
-                        <i class="fa-solid fa-edit m-1"></i> Edit
-                    </NavLink>
+                    @if (task.Type == TaskTypeEnum.Normal)
+                    {
+                        <NavLink class="btn btn-warning m-1" href="@("task/Edit/" + task.Id)">
+                            <i class="fa-solid fa-edit m-1"></i> Edit
+                        </NavLink>
+                    }
+                    else if (task.Type == TaskTypeEnum.Timesheet)
+                    {
+                        <NavLink class="btn btn-warning m-1" href="@("task/timesheet/Edit/" + task.Id)">
+                            <i class="fa-solid fa-edit m-1"></i> Edit
+                        </NavLink>
+                    }
                     <NavLink class="btn btn-danger m-1" @onclick="@((e) => DeleteItem(task))" href="javascript:void(0)">
                         <i class="fa-solid fa-trash m-1"></i> Delete
                     </NavLink>

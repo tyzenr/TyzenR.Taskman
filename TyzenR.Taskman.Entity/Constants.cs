@@ -8,7 +8,7 @@
 
     public enum TaskTypeEnum
     {
-        Default,
+        Normal,
         Timesheet
     }
 

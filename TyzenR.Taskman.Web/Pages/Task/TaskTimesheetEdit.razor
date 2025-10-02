@@ -6,6 +6,7 @@
 @using Newtonsoft.Json
 @using TyzenR.Publisher.Shared
 @using TyzenR.Taskman.Entity
+@using TyzenR.Taskman.Entity.Models
 @using TyzenR.Taskman.Managers
 @using TyzenR.Taskman.Web.Pages.Components
 @using System.ComponentModel.DataAnnotations
@@ -19,7 +20,7 @@
 
 @attribute [Authorize]
 
-<h3>@action Task</h3>
+<h3>@action.ToTitleCase() Timesheet Task</h3>
 
 @if (showConfirmation)
 {
@@ -35,29 +36,37 @@
     </div>
 }
 
-<EditForm Model="@InputList" OnValidSubmit="SaveTimesheetAsync">
+<EditForm Model="@item" OnValidSubmit="SaveAsync">
     <DataAnnotationsValidator />
     <ValidationSummary />
-        <div class="form-group row m-1">
+
+    <div class="form-group row m-1">
         <label class="col-sm-2 " for="Title">Title:</label>
         <div class="col-sm-10">
             <InputText required id="Title" @bind-Value="item.Title" class="form-control" />
         </div>
     </div>
 
-    @for (int i = 0; i < RowsCount; i++)
-    {
-        <div class="d-flex mb-2">
-            <InputText class="form-control me-2" style="max-width: 300px;"
-                       @bind-Value="InputList[i].Description"
-                       placeholder="Description" />
-            <InputNumber class="form-control" style="max-width: 100px;"
-                         @bind-Value="InputList[i].Hours"
-                         placeholder="Hours" />
+    <div class="form-group row m-1">
+        <label class="col-sm-2 " for="Title">Timesheet:</label>
+        <div class="col-sm-10">
+            <div class="d-flex mb-2">
+                <label class="me-8" style="max-width:700px">Description</label>
+                <label class="me-2" style="max-width:100px">Hours</label>
+            </div>
+            @foreach (var timesheet in TimesheetItems)
+            {
+                <div class="d-flex mb-2">
+                    <InputText class="form-control me-8" style="max-width:700px"
+                               @bind-Value="timesheet.Description"
+                               placeholder="Description" />
+                    <InputNumber class="form-control me-2" style="max-width:100px"
+                                 @bind-Value="timesheet.Hours"
+                                 placeholder="Hours" />
+                </div>
+            }
         </div>
-    }
-
-    <button type="submit" class="btn btn-primary">Save</button>
+    </div>
     <br />
     <div class="form-group row m-2">
         <label class="col-sm-2">Attachments:</label>
@@ -75,10 +84,8 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span class="attachment-name">@attachment.FileName</span>
                                 <span>(@FormatSize(attachment.FileContent.Length))</span>
-                                @*                                 <button type="button" class="btn btn-light btn-sm" @onclick="() => ViewAttachment(attachment)">
-                        View
-                        </button>
-                        *@                                <button type="button" class="btn btn-light btn-sm" @onclick="() => RemoveAttachment(attachment)">
+
+                                <button type="button" class="btn btn-light btn-sm" @onclick="() => RemoveAttachment(attachment)">
                                     X
                                 </button>
                             </li>
@@ -135,20 +142,7 @@
     private IList<AttachmentEntity> deletedAttachments = new List<AttachmentEntity>();
     private bool ContentLoaded = false;
 
-    public class HourEntry
-    {
-        [Required(ErrorMessage = "Description is required")]
-        public string Description { get; set; } = string.Empty;
-
-        [Range(0, 24, ErrorMessage = "Hours must be between 0 and 24")]
-        public int? Hours { get; set; }
-    }
-
-    // The list we bind to the form
-    private List<HourEntry> InputList { get; set; } = new List<HourEntry>();
-
-    // Limit rows to max 10
-    private int RowsCount => Math.Min(InputList.Count, 10);
+    private List<TimesheetTaskModel> TimesheetItems { get; set; } = new List<TimesheetTaskModel>();
 
     private bool Saved = false;
 
@@ -160,8 +154,24 @@
 
             if (action == "Add")
             {
-                item = new TaskEntity();
+                item = new TaskEntity()
+                    {
+                        Type = TaskTypeEnum.Timesheet
+                    };
                 item.AssignedTo = appInfo.CurrentUserId;
+                TimesheetItems = new List<TimesheetTaskModel>()
+                {
+                    new TimesheetTaskModel(),
+                    new TimesheetTaskModel(),
+                    new TimesheetTaskModel(),
+                    new TimesheetTaskModel(),
+                    new TimesheetTaskModel(),
+                    new TimesheetTaskModel(),
+                    new TimesheetTaskModel(),
+                    new TimesheetTaskModel(),
+                    new TimesheetTaskModel(),
+                    new TimesheetTaskModel()
+                };
             }
             else
             {
@@ -170,6 +180,7 @@
                     if (!string.IsNullOrEmpty(id))
                     {
                         item = await taskManager.GetByIdAsync(Guid.Parse(id));
+                        TimesheetItems = JsonConvert.DeserializeObject<List<TimesheetTaskModel>>(item.Description);
 
                         if (item != null)
                         {
@@ -180,36 +191,15 @@
                 }
                 catch (Exception ex)
                 {
-                    await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.OnAfterRenderAsync.Exception", ex.ToString());
+                    await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskTimesheetEdit.OnAfterRenderAsync.Exception", ex.ToString());
                     ErrorMessage = "An error has occurred!";
                 }
             }
             StateHasChanged();
         }
-
-        else
-        {
-            if (!ContentLoaded)
-            {
-                bool loading = true;
-                while (loading)
-                {
-                    try
-                    {
-                        loading = false;
-                        ContentLoaded = true;
-                    }
-                    catch
-                    {
-                        await Task.Delay(10);
-                        loading = true;
-                    }
-                }
-            }
-        }
     }
 
-    private async Task SaveTimesheetAsync()
+    private async Task SaveAsync()
     {
         if (!saving)
         {
@@ -224,13 +214,11 @@
                 {
                     ErrorMessage = "Title is required!";
                 }
-                else if (string.IsNullOrEmpty(item.Description))
-                {
-                    ErrorMessage = "Description is required!";
-                }
 
                 else // If valid
                 {
+                    item.Description = JsonConvert.SerializeObject(TimesheetItems);
+
                     item.UpdatedBy = appInfo.CurrentUserId;
                     item.UpdatedOn = DateTime.Now;
                     item.UpdatedIP = appInfo.CurrentUserIPAddress;
@@ -264,7 +252,7 @@
             }
             catch (Exception ex)
             {
-                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskEdit.Save", ex.ToString());
+                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskTimesheetEdit.SaveAsync", ex.ToString());
                 ErrorMessage = "An error has occurred!";
             }
             saving = false;
@@ -278,7 +266,7 @@
         item.Status = TaskStatusEnum.Completed;
         actionType = ActionTypeEnum.Complete;
 
-        await SaveTimesheetAsync();
+        await SaveAsync();
 
         await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member Task Completed");
     }
@@ -288,7 +276,7 @@
         item.Status = TaskStatusEnum.InProgress;
         actionType = ActionTypeEnum.InProgress;
 
-        await SaveTimesheetAsync();
+        await SaveAsync();
     }
 
     private async Task OnFilesSelected(InputFileChangeEventArgs e)

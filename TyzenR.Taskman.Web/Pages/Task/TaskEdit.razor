@@ -18,7 +18,7 @@
 
 @attribute [Authorize]
 
-<h3>@action Task</h3>
+<h3>@action.ToTitleCase() Task</h3>
 
 @if (showConfirmation)
 {
@@ -204,7 +204,10 @@
 
             if (action == "Add")
             {
-                item = new TaskEntity();
+                item = new TaskEntity()
+                {
+                    Type = TaskTypeEnum.Normal
+                };
                 item.AssignedTo = appInfo.CurrentUserId;
             }
             else

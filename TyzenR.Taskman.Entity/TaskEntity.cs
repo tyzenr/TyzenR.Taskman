@@ -10,6 +10,7 @@ namespace TyzenR.Taskman.Entity
         public string Description { get; set; } = string.Empty;
 
         public TaskStatusEnum Status { get; set; }
+        public TaskTypeEnum Type { get; set; } = TaskTypeEnum.Normal;
 
         public double Points { get; set; } = 1;
         public double Hours { get; set; } = 8;
@@ -22,8 +23,6 @@ namespace TyzenR.Taskman.Entity
         public Guid UpdatedBy { get; set; }
 
         public string UpdatedIP { get; set; } = string.Empty;
-
-        public TaskTypeEnum Type { get; set; } = TaskTypeEnum.Default; 
 
 
         [NotMapped]
