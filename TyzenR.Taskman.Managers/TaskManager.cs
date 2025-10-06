@@ -172,7 +172,7 @@ namespace TyzenR.Taskman.Managers
                         "Description: ".Bold() + $"{task.Description.AddBreaks()}".Break() +
                         "Status: ".Bold() + $"{task.Status.ToString()}".Break() +
                         "UpdatedOn: ".Bold() + $"{task.UpdatedOn}".Break() +
-                        "Url: ".Bold() + $"{Constants.ApplicationUrl}/task/edit/{task.Id}".Break();
+                        "Url: ".Bold() + GetUrl(task) .Break();
 
                     if (manager.Email == "contact@futurecaps.com")
                     {
@@ -189,6 +189,20 @@ namespace TyzenR.Taskman.Managers
             {
                 await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.NotifyManagersAsync.Exception", "ip: " + appInfo.CurrentUserIPAddress + "  " + ex.ToString().Break() + body);
             }
+        }
+
+        private string GetUrl(TaskEntity task)
+        {
+            if (task.Type == TaskTypeEnum.Normal)
+            {
+                return $"{Constants.ApplicationUrl}/task/edit/{task.Id}";
+            }
+            else
+            {
+                return $"{Constants.ApplicationUrl}/task/timesheet/edit/{task.Id}";
+            }
+
+            throw new NotImplementedException();
         }
 
         public async Task NotifyUserAsync(TaskEntity task, string title)
