@@ -50,18 +50,30 @@
     <div class="form-group row m-1">
         <label class="col-sm-2 " for="Title">Timesheet:</label>
         <div class="col-sm-10">
-            <div class="d-flex mb-2">
-                <label class="me-8" style="max-width:700px">Description</label>
-                <label class="me-2" style="max-width:100px">/Hours</label>
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <label for="input1" class="form-label">Description</label>
+                    </div>
+                    <div class="col-12 col-md-1">
+                        <label for="input2" class="form-label">Hours</label>
+                    </div>
+                    <div class="col-12 col-md-1">
+                        <label for="input3" class="form-label">Minutes</label>
+                    </div>
+                </div>
             </div>
             @foreach (var timesheet in TimesheetItems)
             {
-                <div class="d-flex mb-2">
-                    <InputText class="form-control me-8" style="max-width:700px"
+                <div class="row d-flex sm-10">
+                    <InputText class="form-control md-6" style="max-width:700px"
                                @bind-Value="timesheet.Description"
                                placeholder="Description" />
-                    <InputNumber class="form-control me-2" style="max-width:100px"
+                    <InputNumber class="form-control md-2" style="max-width:100px"
                                  @bind-Value="timesheet.Hours"
+                                 placeholder="Hours" />
+                    <InputNumber class="form-control md-2" style="max-width:100px"
+                                 @bind-Value="timesheet.Minutes"
                                  placeholder="Hours" />
                 </div>
             }
@@ -123,6 +135,7 @@
 </EditForm>
 
 <TaskHistory TaskId="@id" />
+
 
 @code {
     [Parameter]
