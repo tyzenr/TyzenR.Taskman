@@ -144,7 +144,7 @@ else
             bool confirmed = await confirmDialog.Show("Delete Confirmation", "Do want to delete this Team Member?");
             if (confirmed)
             {
-                await teamManager.DeleteAsync(team);
+                await teamManager.DeleteByIdAsync(team.Id);
 
                 await CloseModalAsync();
             }
