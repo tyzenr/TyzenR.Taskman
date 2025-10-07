@@ -8,7 +8,12 @@ namespace TyzenR.Taskman.Entity
     {
         public Guid MemberId { get; set; }
         public Guid ManagerId { get; set; }
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 
-        public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;
+        [NotMapped]
+        public string Name { get; set; } = string.Empty;
+
+        [NotMapped]
+        public string Email { get; set; } = string.Empty;
     }
 }

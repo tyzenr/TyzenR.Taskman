@@ -66,7 +66,9 @@ try
     builder.Services.AddTransient<IUserLogManager, UserLogManager>();
     builder.Services.AddTransient<IUserManager, UserManager>();
     builder.Services.AddScoped<IAppInfo, AppInfo>();
+
     builder.Services.AddTransient<ITaskManager, TaskManager>();
+    builder.Services.AddTransient<ITeamManager, TeamManager>();
     builder.Services.AddTransient<IAttachmentManager, AttachmentManager>();
     builder.Services.AddTransient<IActionTrackerManager, ActionTrackerManager>();
 

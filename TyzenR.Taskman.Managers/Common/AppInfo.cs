@@ -90,7 +90,7 @@ namespace TyzenR.Taskman.Managers
 
         public async Task SendEmailAsync(string toEmail, string subject, string body, bool tracking = true, List<string> attachments = null)
         {
-            await SharedUtility.SendEmailAsync(toEmail, subject, body, "contact@futurecaps.com", Constants.ApplicationTitle, attachments);
+            await SharedUtility.SendEmailAsync(toEmail, subject, body, "contact@futurecaps.com", TaskmanConstants.ApplicationTitle, attachments);
 
             if (tracking)
             {
@@ -130,7 +130,7 @@ namespace TyzenR.Taskman.Managers
 
             message.From = new MailAddress(
                 "sender",
-                Constants.ApplicationTitle
+                TaskmanConstants.ApplicationTitle
                 );
             message.IsBodyHtml = true;
 

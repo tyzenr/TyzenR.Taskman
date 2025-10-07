@@ -1,0 +1,59 @@
+﻿@if (IsVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="Cancel"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@Message</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @onclick="Confirm">Yes</button>
+                    <button class="btn btn-secondary" @onclick="Cancel">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private TaskCompletionSource<bool>? _taskCompletionSource;
+
+    private bool IsVisible { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Confirm";
+
+    [Parameter]
+    public string Message { get; set; } = "Are you sure?";
+
+    public Task<bool> Show(string title, string message)
+    {
+        Title = title;
+        Message = message;
+        IsVisible = true;
+        StateHasChanged();
+
+        _taskCompletionSource = new TaskCompletionSource<bool>();
+        return _taskCompletionSource.Task;
+    }
+
+    private void Confirm()
+    {
+        IsVisible = false;
+        _taskCompletionSource?.SetResult(true);
+
+        StateHasChanged();
+    }
+
+    private void Cancel()
+    {
+        IsVisible = false;
+        _taskCompletionSource?.SetResult(false);
+
+        StateHasChanged();
+    }
+}

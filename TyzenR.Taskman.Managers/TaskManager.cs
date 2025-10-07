@@ -195,11 +195,11 @@ namespace TyzenR.Taskman.Managers
         {
             if (task.Type == TaskTypeEnum.Normal)
             {
-                return $"{Constants.ApplicationUrl}/task/edit/{task.Id}";
+                return $"{TaskmanConstants.ApplicationUrl}/task/edit/{task.Id}";
             }
             else
             {
-                return $"{Constants.ApplicationUrl}/task/timesheet/edit/{task.Id}";
+                return $"{TaskmanConstants.ApplicationUrl}/task/timesheet/edit/{task.Id}";
             }
 
             throw new NotImplementedException();
@@ -212,7 +212,7 @@ namespace TyzenR.Taskman.Managers
                 if (task.AssignedTo != appInfo.CurrentUserId)
                 {
                     var user = await userManager.GetByIdAsync(task.AssignedTo);
-                    await appInfo.SendEmailAsync(user.Email, title, $"Visit: {Constants.ApplicationUrl} for details");
+                    await appInfo.SendEmailAsync(user.Email, title, $"Visit: {TaskmanConstants.ApplicationUrl} for details");
                 }
             }
             catch (Exception ex)

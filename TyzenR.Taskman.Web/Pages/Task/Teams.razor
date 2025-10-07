@@ -1,4 +1,207 @@
 ﻿@page "/team"
 
-<PageTitle>Tasks</PageTitle>
+@using TyzenR.Account.Dtos
+@using TyzenR.Account.Managers
+@using TyzenR.Publisher.Shared
+@using TyzenR.Taskman.Entity
+@using TyzenR.Taskman.Managers
+@using TyzenR.Taskman.Web.Dialogs
 
+@inject IAppInfo appInfo;
+@inject ITeamManager teamManager;
+@inject IUserManager userManager;
+
+<h3>Team</h3>
+
+<button class="btn btn-primary mb-3" @onclick="ShowSearchModal">Add</button>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger">@ErrorMessage</div>
+}
+
+@if (IsLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (Items is null || !Items.Any())
+{
+    <p>No team members found.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Team Member</th>
+                <th style="width:150px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" @onclick="() => ConfirmAndDeleteItem(item)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div>
+    @if (IsModalVisible)
+    {
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Team Member</h5>
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="CloseModalAsync"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group mb-3">
+                            <input class="form-control" placeholder="Search by Email" @bind="SearchByEmail" @bind:event="oninput" />
+                            <button class="btn btn-primary" @onclick="PerformSearchAsync" disabled="@string.IsNullOrWhiteSpace(SearchByEmail)">Search</button>
+                        </div>
+
+                        @if (SearchPerformed)
+                        {
+                            @if (FoundUser != null)
+                            {
+                                <div class="alert alert-success">Team Member found: @FoundUser.GetFullName()</div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-danger">Not found.</div>
+                            }
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        @if (SearchPerformed && (FoundUser != null))
+                        {
+                            <button class="btn btn-primary" @onclick="AddItemAsync">Add</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-secondary" @onclick="CloseModalAsync">Cancel</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<ConfirmDialog @ref="confirmDialog" />
+
+@code {
+    private IList<TeamEntity> Items;
+    private string ErrorMessage;
+    private bool IsLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshDataAsync();
+    }
+
+    private async Task RefreshDataAsync(bool invokeStateHasChanged = false)
+    {
+        try
+        {
+            IsLoading = true;
+            Items = await teamManager.GetByManagerId(appInfo.CurrentUserId);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = TaskmanConstants.CommonErrorMessage;
+            await SharedUtility.SendEmailToModeratorAsync("Taskman.Teams.RefreshDataAsync.Exception", ex.ToString());
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+
+        if (invokeStateHasChanged)
+        {
+            StateHasChanged();
+        }
+    }
+
+    private ConfirmDialog? confirmDialog;
+
+    private async Task ConfirmAndDeleteItem(TeamEntity team)
+    {
+        try
+        {
+            if (confirmDialog == null)
+            {
+                return;
+            }
+
+            bool confirmed = await confirmDialog.Show("Delete Confirmation", "Do want to delete this Team Member?");
+            if (confirmed)
+            {
+                await teamManager.DeleteAsync(team);
+
+                await CloseModalAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = TaskmanConstants.CommonErrorMessage;
+            await SharedUtility.SendEmailToModeratorAsync("Taskman.Teams.ConfirmAndDeleteItem.Exception", ex.ToString());
+        }
+    }
+
+    #region Search Modal
+    private bool IsModalVisible = false;
+    private string SearchByEmail = string.Empty;
+    private bool SearchPerformed = false;
+    private UserDto FoundUser = null;
+
+    private async Task AddItemAsync()
+    {
+        await teamManager.InsertAsync(new TeamEntity()
+        {
+            MemberId = FoundUser.Id,
+            ManagerId = appInfo.CurrentUserId
+        });
+
+        await CloseModalAsync();
+    }
+
+    // Method to show modal from parent component
+    public void ShowSearchModal()
+    {
+        Reset();
+        IsModalVisible = true;
+        StateHasChanged();
+    }
+
+    private async Task CloseModalAsync()
+    {
+        IsModalVisible = false;
+        await RefreshDataAsync(true);
+    }
+
+    private async Task Reset()
+    {
+        SearchByEmail = string.Empty;
+        SearchPerformed = false;
+        FoundUser = null;
+
+        await RefreshDataAsync(true);
+    }
+
+    private async void PerformSearchAsync()
+    {
+        FoundUser = await userManager.GetUserByEmail(SearchByEmail);
+        SearchPerformed = true;
+
+        await RefreshDataAsync(true);
+    }
+    #endregion
+}
