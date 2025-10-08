@@ -112,12 +112,8 @@
         </div>
     </div>
     <div class="form-group row m-1">
-        <button type="submit" disabled="@saving" class="col-sm-2 btn btn-primary" title="Save wihout sending notification">
-            @(saving ? "loading ..." : "Save")
-        </button>
-        &nbsp; &nbsp;
-        <button class="col-sm-2 btn btn-green" @onclick="@MarkAsCompleted" disabled="@saving" title="Save & Send notification to manager">
-            Mark as Completed
+        <button type="submit" disabled="@saving" class="col-sm-2 btn btn-primary" title="Save & Send notification">
+            @(saving ? "loading ..." : "Submit")
         </button>
     </div>
 </EditForm>
@@ -218,6 +214,7 @@
 
                 else // If valid
                 {
+                    item.Status = TaskStatusEnum.Completed;
                     item.Description = JsonConvert.SerializeObject(TimesheetItems);
 
                     item.UpdatedBy = appInfo.CurrentUserId;
@@ -227,7 +224,6 @@
                     if (action == "Add")
                     {
                         item.CreatedBy = appInfo.CurrentUserId;
-                        item.Status = TaskStatusEnum.InProgress;
 
                         var result = await taskManager.InsertAsync(item);
                         await attachmentManager.SaveAttachmentsAsync(attachments, item.Id);
@@ -248,6 +244,8 @@
                         }
                     }
 
+                    await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, $"Taskman | Timesheet Submit | {item.Title}");
+
                     navigation.NavigateTo("/");
                 }
             }
@@ -261,24 +259,6 @@
     }
 
     private ActionTypeEnum actionType = ActionTypeEnum.Edit;
-
-    private async Task MarkAsCompleted()
-    {
-        item.Status = TaskStatusEnum.Completed;
-        actionType = ActionTypeEnum.Complete;
-
-        await SaveAsync();
-
-        await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member Timesheet Completed");
-    }
-
-    private async Task MarkAsInProgress()
-    {
-        item.Status = TaskStatusEnum.InProgress;
-        actionType = ActionTypeEnum.InProgress;
-
-        await SaveAsync();
-    }
 
     private async Task OnFilesSelected(InputFileChangeEventArgs e)
     {
