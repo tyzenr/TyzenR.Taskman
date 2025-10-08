@@ -80,10 +80,10 @@ namespace TyzenR.Taskman.Managers
                         : query.OrderByDescending(e => e.Description);
                     break;
 
-                case "CreatedOn":
+                case "UpdatedOn":
                     query = direction == SortDirectionEnum.Ascending
-                        ? query.OrderBy(e => e.CreatedOn)
-                        : query.OrderByDescending(e => e.CreatedOn);
+                        ? query.OrderBy(e => e.UpdatedOn)
+                        : query.OrderByDescending(e => e.UpdatedOn);
                     break;
 
                 default:
