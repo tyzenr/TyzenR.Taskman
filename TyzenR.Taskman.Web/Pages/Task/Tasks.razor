@@ -46,6 +46,7 @@
             <th class="pointer" @onclick="@(() => Sort("Type"))">Type</th>
             <th class="pointer" @onclick="@(() => Sort("Status"))">Status</th>
             <th class="pointer" @onclick="@(() => Sort("AssignedTo"))">Assigned To</th>
+            <th class="pointer" @onclick="@(() => Sort("UpdatedOn"))">Updated On</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -57,6 +58,7 @@
                 <td>@task.Type  </td>
                 <td>@task.Status  </td>
                 <td>@task.AssignedToName  </td>
+                <td>@task.UpdatedOn.ToIndiaDateFormat()</td>
                 <td class="text-center">
                     @if (task.Type == TaskTypeEnum.Normal)
                     {
