@@ -7,18 +7,24 @@
 @inject IJSRuntime JS
 @inject IConfiguration configuration
 @inject IOptions<AppSettings> settings
+@inject AppSettings appSettings;
+@inject NavigationManager navigationManager;
+
 
 @{
-    var User = httpContextAccessor.HttpContext?.User;
+    var currentUser = httpContextAccessor.HttpContext?.User;
 }
 
-@if (User != null && User.Identity.IsAuthenticated)
+@if (currentUser != null && currentUser.Identity.IsAuthenticated)
 {
-    <span class="navbar-text text-dark my-0 mx-2">@User.Identity.Name!</span>
-    <span>&nbsp;|</span>
+    <a target="_self" @onclick="OnClickUser" style="cursor:pointer">
+        <span class="navbar-text text-dark my-0 mx-2">@currentUser.Identity.Name!</span>
+    </a>
     <a class="z-index-3 mx-2" href="/Logout" target="_top" Match="NavLinkMatch.All">
         Signout<span class="oi oi-power-standby mx-1" area-hidden="true"> </span>
     </a>
+
+
 }
 else
 {
@@ -45,5 +51,13 @@ else
                 _navigationManager.NavigateTo(Url, true);
             }
         }
+    }
+}
+
+@{
+    async Task OnClickUser()
+    {
+        var userUrl = $"{appSettings.AccountUrl}/user";
+        navigationManager.NavigateTo(userUrl, true);
     }
 }
