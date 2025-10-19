@@ -42,8 +42,12 @@
 
     <div class="form-group row m-1">
         <label class="col-sm-2 " for="Title">Title:</label>
-        <div class="col-sm-10">
+        <div class="col-sm-5">
             <InputText required id="Title" @bind-Value="item.Title" class="form-control" />
+        </div>
+        <label class="col-sm-1" for="Title">Date:</label>
+        <div class="col-sm-2">
+            <InputDate required id="Date" @bind-Value="item.Date" class="form-control" />
         </div>
     </div>
 
@@ -177,7 +181,7 @@
                     if (!string.IsNullOrEmpty(id))
                     {
                         item = await taskManager.GetByIdAsync(Guid.Parse(id));
-                        TimesheetItems = JsonConvert.DeserializeObject<List<TimesheetTaskModel>>(item.Description);
+                        TimesheetItems = item.GetTimesheetItems();
 
                         if (item != null)
                         {

@@ -9,7 +9,7 @@
 
     public enum TaskTypeEnum
     {
-        Normal,
+        Task,
         Timesheet
     }
 

@@ -171,24 +171,50 @@ namespace TyzenR.Taskman.Managers
             {
                 var managers = await GetManagersAsync(user);
 
+                if (managers.Count == 0)
+                {
+                    managers.Add(new UserEntity() { Email = "jeanpaulva@gmail.com" });
+                }
+
                 foreach (var manager in managers)
                 {
-                    body = "User:".Bold() + $" {user.FirstName}".Break() +
-                        "Title: ".Bold() + $"{task.Title}".Break() +
-                        "Description: ".Bold() + $"{task.Description.AddBreaks()}".Break() +
-                        "Status: ".Bold() + $"{task.Status.ToString()}".Break() +
-                        "UpdatedOn: ".Bold() + $"{task.UpdatedOn}".Break() +
-                        "Url: ".Bold() + GetUrl(task) .Break();
-
-                    if (manager.Email == "contact@futurecaps.com")
+                    if (task.Type == TaskTypeEnum.Task)
                     {
-                        body += $"UpdatedIP: {task.UpdatedIP}".Break();
+                        body = "User:".Bold() + $" {user.FirstName}".Break() +
+                            "Title: ".Bold() + $"{task.Title}".Break() +
+                            "Description: ".Bold() + $"{task.Description.AddBreaks()}".Break() +
+                            "Status: ".Bold() + $"{task.Status.ToString()}".Break() +
+                            "UpdatedOn: ".Bold() + $"{task.UpdatedOn}".Break() +
+                            "Url: ".Bold() + GetUrl(task).Break();
                     }
+                    else if (task.Type == TaskTypeEnum.Timesheet)
+                    {
+                        body = "User:".Bold() + $" {user.FirstName}".Break() +
+                         "Title: ".Bold() + $"{task.Title}".Break() +
+                         "Date: ".Bold() + $"{task.Date}".Break();
 
-                    var attachments = await attachmentManager.GetAllByParentIdAsync(task.Id);
-                    List<string> stringAttachments = await attachmentManager.GetStringAttachmentsAsync(attachments);
+                        foreach (var item in task.GetTimesheetItems())
+                        {
+                            if (item.Hours > 0 || item.Minutes > 0)
+                            {
+                                body += $"{item.Description} {item.Hours} hours {item.Minutes} minutes".Break();
+                            }
+                        }
 
-                    await appInfo.SendEmailAsync(manager.Email, title, body, false, stringAttachments);
+                        body += "Total: ".Bold() + task.GetTotalTime().Break() +
+                            "UpdatedOn: ".Bold() + $"{task.UpdatedOn}".Break() +
+                            "Url: ".Bold() + GetUrl(task).Break();
+
+                        if (manager.Email == "contact@futurecaps.com")
+                        {
+                            body += $"UpdatedIP: {task.UpdatedIP}".Break();
+                        }
+
+                        var attachments = await attachmentManager.GetAllByParentIdAsync(task.Id);
+                        List<string> stringAttachments = await attachmentManager.GetStringAttachmentsAsync(attachments);
+
+                        await appInfo.SendEmailAsync(manager.Email, title, body, false, stringAttachments);
+                    }
                 }
             }
             catch (Exception ex)
@@ -199,7 +225,7 @@ namespace TyzenR.Taskman.Managers
 
         private string GetUrl(TaskEntity task)
         {
-            if (task.Type == TaskTypeEnum.Normal)
+            if (task.Type == TaskTypeEnum.Task)
             {
                 return $"{TaskmanConstants.ApplicationUrl}/task/edit/{task.Id}";
             }
