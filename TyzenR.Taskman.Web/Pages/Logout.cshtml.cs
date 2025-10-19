@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using TyzenR.Account.Common;
 
 namespace TyzenR.Taskman.Pages
 {
@@ -9,15 +10,16 @@ namespace TyzenR.Taskman.Pages
     [Authorize]
     public class LogoutModel : PageModel
     {
-        private readonly ILogger<LogoutModel> _logger;
+        private readonly AppSettings appSettings;
 
-        public LogoutModel(ILogger<LogoutModel> logger)
+        public LogoutModel(ILogger<LogoutModel> logger, AppSettings appSettings)
         {
-            _logger = logger;
+            this.appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
         }
+
         public async Task<IActionResult> OnGet(string returnUrl = "")
         {
-            await HttpContext.SignOutAsync("TyzenR.Auth");
+            await HttpContext.SignOutAsync(appSettings.AuthSchemeName);
             return LocalRedirect("~/");
         }
     }
