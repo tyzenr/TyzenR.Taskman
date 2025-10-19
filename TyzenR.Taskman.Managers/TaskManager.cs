@@ -201,7 +201,8 @@ namespace TyzenR.Taskman.Managers
                             }
                         }
 
-                        body += "Total: ".Bold() + task.GetTotalTime().Break() +
+                        body += "Notes: ".Bold() + $"{task.Notes.AddBreaks()}".Break() +
+                            "Total: ".Bold() + task.GetTotalTime().Break() +
                             "UpdatedOn: ".Bold() + $"{task.UpdatedOn}".Break() +
                             "Url: ".Bold() + GetUrl(task).Break();
 

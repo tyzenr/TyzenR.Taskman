@@ -12,6 +12,7 @@ namespace TyzenR.Taskman.Entity
         public string Description { get; set; } = string.Empty;
 
         public DateTime? Date { get; set; } = DateTime.UtcNow;
+        public string Notes { get; set; } = string.Empty;
 
         public TaskStatusEnum Status { get; set; }
         public TaskTypeEnum Type { get; set; } = TaskTypeEnum.Task;

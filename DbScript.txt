@@ -10,6 +10,7 @@ CREATE TABLE [dbo].[Task](
 	[Title] [nvarchar](max) NOT NULL,
 	[Description] [nvarchar](max) NOT NULL,
 	[Date] [datetime] NULL,
+	[Notes] [nvarchar](max) NOT NULL,
 	[Status] [int] NOT NULL,
 	[Type] [int] NOT NULL,
 	[Points] [float] NOT NULL,

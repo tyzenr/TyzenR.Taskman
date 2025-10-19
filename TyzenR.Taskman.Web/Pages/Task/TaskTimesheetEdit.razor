@@ -84,6 +84,44 @@
         </div>
     </div>
     <br />
+    <div class="form-group row m-1">
+        <label class="col-sm-2 " for="Html">Notes:</label>
+        <div class="col-sm-8" style="height: 200px; padding: 10px; border-radius: 4px;">
+            <BlazoredTextEditor @ref="@NotesHtml">
+                <ToolbarContent>
+                    <select class="ql-header">
+                        <option selected=""></option>
+                        <option value="1"></option>
+                        <option value="2"></option>
+                        <option value="3"></option>
+                        <option value="4"></option>
+                        <option value="5"></option>
+                    </select>
+                    <span class="ql-formats">
+                        <button class="ql-bold"></button>
+                        <button class="ql-italic"></button>
+                        <button class="ql-underline"></button>
+                        <button class="ql-strike"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <select class="ql-color"></select>
+                        <select class="ql-background"></select>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-list" value="ordered"></button>
+                        <button class="ql-list" value="bullet"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-link"></button>
+                        <button class="ql-image"></button>
+                    </span>
+                </ToolbarContent>
+                <EditorContent>
+                </EditorContent>
+            </BlazoredTextEditor>
+        </div>
+    </div>
+    <br />
     <div class="form-group row m-2">
         <label class="col-sm-2">Attachments:</label>
         <div class="col-sm-4">
@@ -138,6 +176,8 @@
     private string ErrorMessage = "";
 
     private IList<MemberModel> teamMembers = new List<MemberModel>();
+
+    private BlazoredTextEditor NotesHtml;
 
     private IList<AttachmentEntity> attachments = new List<AttachmentEntity>();
     private IList<AttachmentEntity> deletedAttachments = new List<AttachmentEntity>();
@@ -198,6 +238,27 @@
             }
             StateHasChanged();
         }
+        else
+        {
+            if (!ContentLoaded)
+            {
+                bool loading = true;
+                while (loading)
+                {
+                    try
+                    {
+                        await this.NotesHtml.LoadHTMLContent(item.Notes);
+                        loading = false;
+                        ContentLoaded = true;
+                    }
+                    catch
+                    {
+                        await Task.Delay(10);
+                        loading = true;
+                    }
+                }
+            }
+        }
     }
 
     private async Task SaveAsync()
@@ -208,6 +269,7 @@
             ErrorMessage = "";
 
             item.Title = item.Title.Trim();
+            item.Notes = await this.NotesHtml.GetHTML();
 
             try
             {
