@@ -5,6 +5,7 @@ using TyzenR.Account.Managers;
 using TyzenR.EntityLibrary;
 using TyzenR.Publisher.Shared;
 using TyzenR.Taskman.Entity;
+using TyzenR.Taskman.Entity.Models;
 
 namespace TyzenR.Taskman.Managers
 {
@@ -202,7 +203,7 @@ namespace TyzenR.Taskman.Managers
                         }
 
                         body += "Notes: ".Bold() + $"{task.Notes.AddBreaks()}".Break() +
-                            "Total: ".Bold() + task.GetTotalTime().Break() +
+                            "Total: ".Bold() + task.GetTotalTimeFormatted().Break() +
                             "UpdatedOn: ".Bold() + $"{task.UpdatedOn}".Break() +
                             "Url: ".Bold() + GetUrl(task).Break();
 
@@ -252,6 +253,39 @@ namespace TyzenR.Taskman.Managers
             {
                 await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.NotifyUserAsync.Exception", "ip: " + appInfo.CurrentUserIPAddress + "  " + ex.ToString().Break());
             }
+        }
+
+        public async Task<IList<TaskEntity>> GetTimesheetsAsync(Guid userId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var timesheets = await this.entityContext.Tasks
+                    .Where(t => t.AssignedTo == userId && t.Date >= fromDate && t.Date <= toDate)
+                    .ToListAsync();
+
+                return timesheets;
+            }
+            catch (Exception ex)
+            {
+                await SharedUtility.SendEmailToModeratorAsync("Taskman.TaskManager.GetTimesheetsAsync.Exception", ex.ToString().Break());
+            }
+
+            return new List<TaskEntity>();
+        }
+
+        public string GetTotalTimeFormatted(IList<TaskEntity> list)
+        {
+            int totalHours = 0, totalMinutes = 0;
+            foreach (var item in list)
+            {
+                totalHours = totalHours + item.GetTimesheetItems().Sum(t => t.Hours);
+                totalMinutes = totalMinutes + item.GetTimesheetItems().Sum(t => t.Minutes);
+            }
+
+            totalHours = totalHours + (totalMinutes / 60);
+            totalMinutes = totalMinutes % 60;
+
+            return $"{totalHours}h {totalMinutes}m";
         }
     }
 }

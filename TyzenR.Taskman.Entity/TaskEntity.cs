@@ -38,7 +38,7 @@ namespace TyzenR.Taskman.Entity
             return JsonConvert.DeserializeObject<List<TimesheetTaskModel>>(this.Description);
         }
 
-        public string GetTotalTime(IList<TimesheetTaskModel> list = null)
+        public string GetTotalTimeFormatted(IList<TimesheetTaskModel> list = null)
         {
             if (list == null)
             {

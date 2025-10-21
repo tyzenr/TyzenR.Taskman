@@ -3,6 +3,7 @@
 <PageTitle>Timesheet Report</PageTitle>
 
 @using Microsoft.AspNetCore.Authorization
+@using TyzenR.Account.Entity
 @using TyzenR.EntityLibrary;
 @using TyzenR.Taskman.Entity
 @using TyzenR.Taskman.Managers;
@@ -17,7 +18,7 @@
 @attribute [Authorize]
 
 <PageTitle>Timesheets Report</PageTitle>
-<h1>Tasks</h1>
+<h1>Timesheet Report</h1>
 
 @if (!string.IsNullOrEmpty(ErrorMessage))
 {
@@ -27,9 +28,9 @@
 }
 
 <div style="display: flex; gap: 10px;">
-    <label class="col-sm-2 " for="AssignedTo">Member:</label>
+    <label class="col-sm-1 " for="AssignedTo">Member:</label>
     <div class="col-sm-4">
-        <InputSelect class="form-select" @bind-Value="SelectedMember">
+        <InputSelect class="form-select" @bind-Value="SelectedMemberId">
             @foreach (MemberModel member in TeamMembers)
             {
                 <option value="@member.Id">
@@ -40,35 +41,50 @@
     </div>
 
     <div class="form-group row m-1">
-        <label class="col-sm-2 " for="AssignedTo">From:</label>
+        <label class="col-sm-3 " for="AssignedTo">From:</label>
         <div class="col-sm-4">
+            <InputDate @bind-Value="FromDate"></InputDate>
         </div>
     </div>
 
     <div class="form-group row m-1">
-        <label class="col-sm-2 " for="AssignedTo">To:</label>
+        <label class="col-sm-1 " for="AssignedTo">To:</label>
         <div class="col-sm-4">
+            <InputDate @bind-Value="EndDate"></InputDate>
         </div>
     </div>
+
     <NavLink class="btn btn-success" @onclick="RefreshDataAsync">
         <i class="fa-solid fa-plus m-1"></i> Refresh
     </NavLink>
 </div>
+
 <table class="table">
     <thead>
         <tr>
             <th class="pointer">Title</th>
+            <th class="pointer">Date</th>
+            <th class="pointer">Total</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var task in list)
+        @foreach (var timesheet in List)
         {
             <tr>
-                <td>@task.Title  </td>
+                <td>@timesheet.Title</td>
+                <td>@timesheet.Date.Value.ToIndiaDateFormat()</td>
+                <td>@timesheet.GetTotalTimeFormatted()</td>
             </tr>
         }
     </tbody>
 </table>
+
+<div class="form-group row m-1">
+    <label class="col-sm-1 " for="AssignedTo">Total Time:</label>
+    <div class="col-sm-2">
+        <label>@TotalTime</label>
+    </div>
+</div>
 
 <style>
     .pointer:hover {
@@ -77,11 +93,15 @@
 </style>
 
 @code {
-    private IList<TaskEntity> list = new List<TaskEntity>();
+    private IList<TaskEntity> List = new List<TaskEntity>();
 
     private IList<MemberModel> TeamMembers = new List<MemberModel>();
-    private MemberModel SelectedMember;
+    private Guid SelectedMemberId = Guid.Empty;
 
+    public DateTime FromDate = DateTime.Now;
+    public DateTime EndDate = DateTime.Now;
+
+    private string TotalTime;
     private string ErrorMessage = "";
 
     protected async override Task OnInitializedAsync()
@@ -90,10 +110,13 @@
         {
             var user = appInfo.GetCurrentUser();
             TeamMembers = await taskManager.GetTeamMembersAsync(user);
+
+            SelectedMemberId = TeamMembers.FirstOrDefault()?.Id ?? Guid.Empty;
+            FromDate = new DateTime(DateTime.Now.ToIndiaDateTime().Year, DateTime.Now.ToIndiaDateTime().Month, 1);
         }
         catch (Exception ex)
         {
-            await SharedUtility.SendEmailToModeratorAsync("Taskman.Report.OnInitializedAsync", ex.ToString());
+            await SharedUtility.SendEmailToModeratorAsync("Taskman.Timesheets.OnInitializedAsync.Exception", ex.ToString());
         }
     }
 
@@ -101,14 +124,21 @@
     {
         ErrorMessage = string.Empty;
 
+        if (SelectedMemberId == Guid.Empty)
+        {
+            ErrorMessage = "Please select a team member.";
+            return;
+        }
+
         try
         {
-            // Search
+            List = await taskManager.GetTimesheetsAsync(SelectedMemberId, FromDate, EndDate);
 
+            TotalTime = taskManager.GetTotalTimeFormatted(List);
         }
         catch (Exception ex)
         {
-            await SharedUtility.SendEmailToModeratorAsync("Taskman.Tasks.RefreshDataAsync", ex.ToString());
+            await SharedUtility.SendEmailToModeratorAsync("Taskman.Timesheets.RefreshDataAsync.Exception", ex.ToString());
         }
 
         StateHasChanged();

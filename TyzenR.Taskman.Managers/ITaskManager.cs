@@ -12,5 +12,8 @@ namespace TyzenR.Taskman.Managers
         Task<IList<MemberModel>> GetTeamMembersAsync(UserEntity user);
         Task NotifyManagersAsync(UserEntity user, TaskEntity task, string title);
         Task NotifyUserAsync(TaskEntity task, string title);
+
+        Task<IList<TaskEntity>> GetTimesheetsAsync(Guid userId, DateTime fromDate, DateTime toDate);
+        string GetTotalTimeFormatted(IList<TaskEntity> list);
     }
 }
