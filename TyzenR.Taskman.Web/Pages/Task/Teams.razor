@@ -10,10 +10,12 @@
 @inject IAppInfo appInfo;
 @inject ITeamManager teamManager;
 @inject IUserManager userManager;
+@inject NavigationManager navMan;
 
 <h3>Team</h3>
 
 <button class="btn btn-primary mb-3" @onclick="ShowSearchModal">Add</button>
+<button class="btn btn-secondary mb-3" @onclick="NavigateToReports">Timesheets</button>
 
 @if (!string.IsNullOrEmpty(ErrorMessage))
 {
@@ -174,12 +176,16 @@ else
         await CloseModalAsync();
     }
 
-    // Method to show modal from parent component
     public void ShowSearchModal()
     {
         Reset();
         IsModalVisible = true;
         StateHasChanged();
+    }
+
+    public void NavigateToReports()
+    {
+        navMan.NavigateTo("/timesheets", true);    
     }
 
     private async Task CloseModalAsync()
