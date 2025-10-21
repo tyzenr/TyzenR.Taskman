@@ -21,7 +21,7 @@ namespace TyzenR.Taskman.Entity
         public double Hours { get; set; } = 8;
 
         public Guid CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;  
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         public Guid AssignedTo { get; set; }
 
         public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;
@@ -38,13 +38,18 @@ namespace TyzenR.Taskman.Entity
             return JsonConvert.DeserializeObject<List<TimesheetTaskModel>>(this.Description);
         }
 
-        public string GetTotalTime()
+        public string GetTotalTime(IList<TimesheetTaskModel> list = null)
         {
+            if (list == null)
+            {
+                list = GetTimesheetItems();
+            }
+
             int totalHours = 0, totalMinutes = 0;
-            foreach (var item in GetTimesheetItems())
+            foreach (var item in list)
             {
                 totalHours = totalHours + item.Hours;
-                totalMinutes = totalMinutes + item.Minutes; 
+                totalMinutes = totalMinutes + item.Minutes;
             }
 
             totalHours = totalHours + (totalMinutes / 60);
