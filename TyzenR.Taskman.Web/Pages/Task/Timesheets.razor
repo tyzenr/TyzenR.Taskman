@@ -26,7 +26,30 @@
     </div>
 }
 
-<div class="text-center" style=" display: flex; align-items: center; gap: 10px; margin-left:400px">
+<div style="display: flex; gap: 10px;">
+    <label class="col-sm-2 " for="AssignedTo">Member:</label>
+    <div class="col-sm-4">
+        <InputSelect class="form-select" @bind-Value="SelectedMember">
+            @foreach (MemberModel member in TeamMembers)
+            {
+                <option value="@member.Id">
+                    @member.Name
+                </option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group row m-1">
+        <label class="col-sm-2 " for="AssignedTo">From:</label>
+        <div class="col-sm-4">
+        </div>
+    </div>
+
+    <div class="form-group row m-1">
+        <label class="col-sm-2 " for="AssignedTo">To:</label>
+        <div class="col-sm-4">
+        </div>
+    </div>
     <NavLink class="btn btn-success" @onclick="RefreshDataAsync">
         <i class="fa-solid fa-plus m-1"></i> Refresh
     </NavLink>
@@ -56,6 +79,9 @@
 @code {
     private IList<TaskEntity> list = new List<TaskEntity>();
 
+    private IList<MemberModel> TeamMembers = new List<MemberModel>();
+    private MemberModel SelectedMember;
+
     private string ErrorMessage = "";
 
     protected async override Task OnInitializedAsync()
@@ -63,8 +89,7 @@
         try
         {
             var user = appInfo.GetCurrentUser();
-            // Load people to dropdown
-
+            TeamMembers = await taskManager.GetTeamMembersAsync(user);
         }
         catch (Exception ex)
         {
