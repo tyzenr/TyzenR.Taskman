@@ -260,7 +260,9 @@ namespace TyzenR.Taskman.Managers
             try
             {
                 var timesheets = await this.entityContext.Tasks
-                    .Where(t => t.AssignedTo == userId && t.Date >= fromDate && t.Date <= toDate)
+                    .Where(t => t.Type == TaskTypeEnum.Timesheet && 
+                           t.AssignedTo == userId && 
+                           t.Date >= fromDate && t.Date <= toDate)
                     .ToListAsync();
 
                 return timesheets;
