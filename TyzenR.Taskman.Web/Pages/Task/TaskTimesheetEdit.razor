@@ -158,9 +158,25 @@
         </div>
     </div>
     <div class="form-group row m-1">
-        <button type="submit" disabled="@saving" class="col-sm-2 btn btn-primary" title="Save & Send notification">
-            @(saving ? "loading ..." : "Submit")
+        <button type="submit" disabled="@saving" class="col-sm-2 btn btn-primary">
+            @(saving ? "loading ..." : "Save")
         </button>
+        &nbsp; &nbsp;
+        @if (action == "Edit")
+        {
+            if (item.Status == TaskStatusEnum.InProgress)
+            {
+                <button class="col-sm-2 btn btn-green" @onclick="@MarkAsCompleted" disabled="@saving">
+                    Mark as Completed
+                </button>
+            }
+            else if (item.Status == TaskStatusEnum.Completed)
+            {
+                <button class="col-sm-2 btn-teal" @onclick="@MarkAsInProgress" disabled="@saving">
+                    Mark as InProgress
+                </button>
+            }
+        }
     </div>
 </EditForm>
 
@@ -288,7 +304,6 @@
 
                 else // If valid
                 {
-                    item.Status = TaskStatusEnum.Completed;
                     item.Description = JsonConvert.SerializeObject(TimesheetItems);
 
                     item.UpdatedBy = appInfo.CurrentUserId;
@@ -317,8 +332,6 @@
                             await actionTrackerManager.TrackActionAsync(actionType, item);
                         }
                     }
-
-                    await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, $"Taskman | Timesheet Submit | {item.Title}");
 
                     navigation.NavigateTo("/");
                 }
@@ -403,5 +416,23 @@
     private void SetTotalTime()
     { 
         TotalTime = item.GetTotalTimeFormatted(TimesheetItems);
+    }
+
+    private async Task MarkAsCompleted()
+    {
+        item.Status = TaskStatusEnum.Completed;
+        actionType = ActionTypeEnum.Complete;
+
+        await SaveAsync();
+
+        await taskManager.NotifyManagersAsync(appInfo.GetCurrentUser(), item, "Taskman | Team Member Timesheet Completed");
+    }
+
+    private async Task MarkAsInProgress()
+    {
+        item.Status = TaskStatusEnum.InProgress;
+        actionType = ActionTypeEnum.InProgress;
+
+        await SaveAsync();
     }
 }
