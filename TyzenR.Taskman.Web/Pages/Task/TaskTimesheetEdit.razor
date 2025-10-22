@@ -313,6 +313,7 @@
                     if (action == "Add")
                     {
                         item.CreatedBy = appInfo.CurrentUserId;
+                        item.Status = TaskStatusEnum.InProgress;
 
                         var result = await taskManager.InsertAsync(item);
                         await attachmentManager.SaveAttachmentsAsync(attachments, item.Id);
