@@ -78,7 +78,7 @@
                                  placeholder="Hours" @onkeydown="HandleOnKeyDown" />
                     <InputNumber class="form-control md-2" style="max-width:100px"
                                  @bind-Value="timesheet.Minutes"
-                                 placeholder="Hours" @onkeydown="HandleOnKeyDown" />
+                                 placeholder="Minutes" @onkeydown="HandleOnKeyDown" />
                 </div>
             }
         </div>
@@ -158,25 +158,13 @@
         </div>
     </div>
     <div class="form-group row m-1">
-        <button type="submit" disabled="@saving" class="col-sm-2 btn btn-primary">
+        <button type="submit" disabled="@saving" class="col-sm-2 btn btn-primary" title="Saves temporarily, so you can Complete later">
             @(saving ? "loading ..." : "Save")
         </button>
         &nbsp; &nbsp;
-        @if (action == "Edit")
-        {
-            if (item.Status == TaskStatusEnum.InProgress)
-            {
-                <button class="col-sm-2 btn btn-green" @onclick="@MarkAsCompleted" disabled="@saving">
-                    Mark as Completed
-                </button>
-            }
-            else if (item.Status == TaskStatusEnum.Completed)
-            {
-                <button class="col-sm-2 btn-teal" @onclick="@MarkAsInProgress" disabled="@saving">
-                    Mark as InProgress
-                </button>
-            }
-        }
+        <button class="col-sm-2 btn btn-green" @onclick="@MarkAsCompleted" disabled="@saving" title="Complets and send email to manager">
+            Mark as Completed
+        </button>
     </div>
 </EditForm>
 
@@ -219,7 +207,8 @@
             {
                 item = new TaskEntity()
                     {
-                        Type = TaskTypeEnum.Timesheet
+                        Type = TaskTypeEnum.Timesheet,
+                        Status = TaskStatusEnum.InProgress
                     };
                 item.AssignedTo = appInfo.CurrentUserId;
                 TimesheetItems = new List<TimesheetTaskModel>()
@@ -313,7 +302,6 @@
                     if (action == "Add")
                     {
                         item.CreatedBy = appInfo.CurrentUserId;
-                        item.Status = TaskStatusEnum.InProgress;
 
                         var result = await taskManager.InsertAsync(item);
                         await attachmentManager.SaveAttachmentsAsync(attachments, item.Id);
@@ -415,7 +403,7 @@
     }
 
     private void SetTotalTime()
-    { 
+    {
         TotalTime = item.GetTotalTimeFormatted(TimesheetItems);
     }
 
