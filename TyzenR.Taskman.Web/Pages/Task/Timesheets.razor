@@ -31,7 +31,7 @@
     <label class="col-sm-1 " for="AssignedTo">Member:</label>
     <div class="col-sm-4">
         <InputSelect class="form-select" @bind-Value="SelectedMemberId">
-            @foreach (MemberModel member in TeamMembers)
+            @foreach (TeamMemberModel member in TeamMembers)
             {
                 <option value="@member.Id">
                     @member.Name
@@ -95,7 +95,7 @@
 @code {
     private IList<TaskEntity> List = new List<TaskEntity>();
 
-    private IList<MemberModel> TeamMembers = new List<MemberModel>();
+    private IList<TeamMemberModel> TeamMembers = new List<TeamMemberModel>();
     private Guid SelectedMemberId = Guid.Empty;
 
     public DateTime FromDate = DateTime.Now;
