@@ -72,13 +72,13 @@ namespace TyzenR.Taskman.Managers
                 case "Status":
                     query = direction == SortDirectionEnum.Ascending
                         ? query.OrderBy(e => e.Status)
-                        : query.OrderByDescending(e => e.Status);
+                        : query.OrderByDescending(e => e.Description);
                     break;
 
                 case "AssignedTo":
                     query = direction == SortDirectionEnum.Ascending
                         ? query.OrderBy(e => e.AssignedTo)
-                        : query.OrderByDescending(e => e.AssignedTo);
+                        : query.OrderByDescending(e => e.Description);
                     break;
 
                 case "UpdatedOn":

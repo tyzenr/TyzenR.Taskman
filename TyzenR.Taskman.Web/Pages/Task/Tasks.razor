@@ -26,97 +26,89 @@
     </div>
 }
 
-@if (IsLoading)
-{
-    <p><em>Loading...</em></p>
-}
-else if (TeamMembers != null)
-{
-    <div class="text-center" style=" display: flex; align-items: center; gap: 10px">
-        <NavLink class="btn btn-success" href="@("task/Add")">
-            <i class="fa-solid fa-plus m-1"></i> Add
-        </NavLink>
-        <NavLink class="btn btn-success" href="@("task/timesheet/Add")">
-            <i class="fa-solid fa-plus m-1"></i> Add Timesheet
-        </NavLink>
-        <div style="margin-top:15px;">
-            <TyzenR.Taskman.Web.Shared.Pagination TotaPagesQuantity="totalPages" CurrentPage="currentPage" Radius="2"
-                                                  SelectedPage="OnSelectedPage">
-            </TyzenR.Taskman.Web.Shared.Pagination>
-        </div>
+<div class="text-center" style=" display: flex; align-items: center; gap: 10px">
+    <NavLink class="btn btn-success" href="@("task/Add")">
+        <i class="fa-solid fa-plus m-1"></i> Add
+    </NavLink>
+    <NavLink class="btn btn-success" href="@("task/timesheet/Add")">
+        <i class="fa-solid fa-plus m-1"></i> Add Timesheet
+    </NavLink>
+    <div style="margin-top:15px;">
+        <TyzenR.Taskman.Web.Shared.Pagination TotaPagesQuantity="totalPages" CurrentPage="currentPage" Radius="2"
+                                              SelectedPage="OnSelectedPage">
+        </TyzenR.Taskman.Web.Shared.Pagination>
+    </div>
 
-        <div class="form-group row m-1">
-            <label class="col-sm-4 " for="AssignedTo">Team Member:</label>
-            <div class="col-sm-8">
-                <InputSelect class="form-select" @bind-Value="SelectedTeamMember" @bind-Value:after="OnTeamMemberSelectionChanged">
-                    @foreach (TeamMemberModel member in TeamMembers)
-                    {
-                        <option value="@member.Id">@member.Name</option>
-                    }
-                </InputSelect>
-            </div>
+    <div class="form-group row m-1">
+        <label class="col-sm-4 " for="AssignedTo">Team Member:</label>
+        <div class="col-sm-8">
+            <InputSelect class="form-select" @bind-Value="SelectedTeamMember" @onchange="OnTeamMemberSelectionChanged">
+                @foreach (TeamMemberModel member in TeamMembers)
+                {
+                    <option value="@member">@member.Name</option>
+                }
+            </InputSelect>
         </div>
     </div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th class="pointer" @onclick="@(() => Sort("Title"))">Title</th>
-                <th class="pointer" @onclick="@(() => Sort("Type"))">Type</th>
-                <th class="pointer" @onclick="@(() => Sort("Status"))">Status</th>
-                <th class="pointer" @onclick="@(() => Sort("AssignedTo"))">Assigned To</th>
-                <th class="pointer" @onclick="@(() => Sort("UpdatedOn"))">Updated On</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var task in list)
-            {
-                <tr style="color:@GetColor(task)">
-                    <td>@task.Title  </td>
-                    <td>@task.Type  </td>
-                    <td>@task.Status  </td>
-                    <td>@task.AssignedToName  </td>
-                    <td>@task.UpdatedOn.ToIndiaDateFormat()</td>
-                    <td class="text-center">
-                        @if (task.Type == TaskTypeEnum.Task)
-                        {
-                            <NavLink class="btn btn-warning m-1" href="@("task/Edit/" + task.Id)">
-                                <i class="fa-solid fa-edit m-1"></i> Edit
-                            </NavLink>
-                        }
-                        else if (task.Type == TaskTypeEnum.Timesheet)
-                        {
-                            <NavLink class="btn btn-warning m-1" href="@("task/timesheet/Edit/" + task.Id)">
-                                <i class="fa-solid fa-edit m-1"></i> Edit
-                            </NavLink>
-                        }
-                        <NavLink class="btn btn-danger m-1" @onclick="@((e) => DeleteItem(task))" href="javascript:void(0)">
-                            <i class="fa-solid fa-trash m-1"></i> Delete
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="pointer" @onclick="@(() => Sort("Title"))">Title</th>
+            <th class="pointer" @onclick="@(() => Sort("Type"))">Type</th>
+            <th class="pointer" @onclick="@(() => Sort("Status"))">Status</th>
+            <th class="pointer" @onclick="@(() => Sort("AssignedTo"))">Assigned To</th>
+            <th class="pointer" @onclick="@(() => Sort("UpdatedOn"))">Updated On</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in list)
+        {
+            <tr style="color:@GetColor(task)">
+                <td>@task.Title  </td>
+                <td>@task.Type  </td>
+                <td>@task.Status  </td>
+                <td>@task.AssignedToName  </td>
+                <td>@task.UpdatedOn.ToIndiaDateFormat()</td>
+                <td class="text-center">
+                    @if (task.Type == TaskTypeEnum.Task)
+                    {
+                        <NavLink class="btn btn-warning m-1" href="@("task/Edit/" + task.Id)">
+                            <i class="fa-solid fa-edit m-1"></i> Edit
                         </NavLink>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <style>
-        .pointer:hover {
-            cursor: pointer;
+                    }
+                    else if (task.Type == TaskTypeEnum.Timesheet)
+                    {
+                        <NavLink class="btn btn-warning m-1" href="@("task/timesheet/Edit/" + task.Id)">
+                            <i class="fa-solid fa-edit m-1"></i> Edit
+                        </NavLink>
+                    }
+                    <NavLink class="btn btn-danger m-1" @onclick="@((e) => DeleteItem(task))" href="javascript:void(0)">
+                        <i class="fa-solid fa-trash m-1"></i> Delete
+                    </NavLink>
+                </td>
+            </tr>
         }
-    </style>
-}
+    </tbody>
+</table>
+
+<style>
+    .pointer:hover {
+        cursor: pointer;
+    }
+</style>
 
 @code {
-    private bool IsLoading = true;
     private IList<TaskEntity> list = new List<TaskEntity>();
 
     private string ErrorMessage = "";
-
+    private Guid currentlySending;
     private int totalPages = 1, currentPage = 1;
     private string sortBy = "CreatedOn";
     private SortDirectionEnum sortDirection = SortDirectionEnum.Descending;
 
-    private IList<TeamMemberModel> TeamMembers;
+    private IList<TeamMemberModel> TeamMembers = new List<TeamMemberModel>();
     private string? SelectedTeamMember;
 
     [SupplyParameterFromQuery]
@@ -125,12 +117,8 @@ else if (TeamMembers != null)
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-
         if (firstRender)
         {
-            TeamMembers = await taskManager.GetTeamMembersAsync(appInfo.GetCurrentUser(), "All");
-            SelectedTeamMember = Guid.Empty.ToString();
-
             await RefreshDataAsync();
         }
     }
@@ -138,20 +126,17 @@ else if (TeamMembers != null)
     private async Task RefreshDataAsync(int page = 1, int pageSize = 10)
     {
         ErrorMessage = string.Empty;
-        IsLoading = true;
 
         try
         {
+            TeamMembers = await taskManager.GetTeamMembersAsync(appInfo.GetCurrentUser(), "All");
+            SelectedTeamMember = Guid.Empty.ToString();
+
             var user = appInfo.GetCurrentUser();
             if (user != null)
             {
                 var query = this.context.Tasks
                     .Where(t => (t.Status == TaskStatusEnum.InProgress || t.Status == TaskStatusEnum.Completed) && (t.CreatedBy == user.Id || t.AssignedTo == user.Id));
-
-                if (Guid.Parse(SelectedTeamMember) != Guid.Empty)
-                {
-                    query = query.Where(t => t.AssignedTo == Guid.Parse(SelectedTeamMember));
-                }
 
                 totalPages = (query.Count() / pageSize) + 1;
                 list = await taskManager.GetPaginatedTasksForUserAsync(query, page, pageSize, sortBy, sortDirection);
@@ -160,10 +145,6 @@ else if (TeamMembers != null)
         catch (Exception ex)
         {
             await SharedUtility.SendEmailToModeratorAsync("Taskman.Tasks.RefreshDataAsync", ex.ToString());
-        }
-        finally
-        {
-            IsLoading = false;
         }
 
         StateHasChanged();
@@ -224,8 +205,8 @@ else if (TeamMembers != null)
         }
     }
 
-    private async Task OnTeamMemberSelectionChanged()
+    private void OnTeamMemberSelectionChanged(ChangeEventArgs e)
     {
-        await RefreshDataAsync();
+        SelectedTeamMember = e.Value?.ToString();
     }
 }
