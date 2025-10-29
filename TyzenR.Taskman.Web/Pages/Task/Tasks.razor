@@ -38,18 +38,6 @@
                                               SelectedPage="OnSelectedPage">
         </TyzenR.Taskman.Web.Shared.Pagination>
     </div>
-
-    <div class="form-group row m-1">
-        <label class="col-sm-4 " for="AssignedTo">Team Member:</label>
-        <div class="col-sm-8">
-            <InputSelect class="form-select" @bind-Value="SelectedTeamMember" @onchange="OnTeamMemberSelectionChanged">
-                @foreach (TeamMemberModel member in TeamMembers)
-                {
-                    <option value="@member">@member.Name</option>
-                }
-            </InputSelect>
-        </div>
-    </div>
 </div>
 <table class="table">
     <thead>
@@ -108,19 +96,13 @@
     private string sortBy = "CreatedOn";
     private SortDirectionEnum sortDirection = SortDirectionEnum.Descending;
 
-    private IList<TeamMemberModel> TeamMembers = new List<TeamMemberModel>();
-    private string? SelectedTeamMember;
-
     [SupplyParameterFromQuery]
     [Parameter]
     public int page { get; set; } = 1;
 
-    protected async override Task OnAfterRenderAsync(bool firstRender)
+    protected async override Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            await RefreshDataAsync();
-        }
+        await RefreshDataAsync();
     }
 
     private async Task RefreshDataAsync(int page = 1, int pageSize = 10)
@@ -129,9 +111,6 @@
 
         try
         {
-            TeamMembers = await taskManager.GetTeamMembersAsync(appInfo.GetCurrentUser(), "All");
-            SelectedTeamMember = Guid.Empty.ToString();
-
             var user = appInfo.GetCurrentUser();
             if (user != null)
             {
@@ -203,10 +182,5 @@
         {
             return "black";
         }
-    }
-
-    private void OnTeamMemberSelectionChanged(ChangeEventArgs e)
-    {
-        SelectedTeamMember = e.Value?.ToString();
     }
 }

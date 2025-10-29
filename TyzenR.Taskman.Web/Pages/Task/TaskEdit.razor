@@ -99,7 +99,7 @@
         <label class="col-sm-2 " for="AssignedTo">Assigned To:</label>
         <div class="col-sm-10">
             <InputSelect class="form-select" @bind-Value="item.AssignedTo">
-                @foreach (TeamMemberModel member in teamMembers)
+                @foreach (MemberModel member in teamMembers)
                 {
                     if (member.Id == item.AssignedTo)
                     {
@@ -189,7 +189,7 @@
     private string ErrorMessage = "";
 
     private BlazoredTextEditor DescriptionHtml;
-    private IList<TeamMemberModel> teamMembers = new List<TeamMemberModel>();
+    private IList<MemberModel> teamMembers = new List<MemberModel>();
 
     private IList<AttachmentEntity> attachments = new List<AttachmentEntity>();
     private IList<AttachmentEntity> deletedAttachments = new List<AttachmentEntity>();

@@ -136,19 +136,11 @@ namespace TyzenR.Taskman.Managers
             return result;
         }
 
-        public async Task<IList<TeamMemberModel>> GetTeamMembersAsync(UserEntity user, string firstItem = "")
+        public async Task<IList<MemberModel>> GetTeamMembersAsync(UserEntity user)
         {
             if (user == null)
             {
-                if (string.IsNullOrEmpty(firstItem))
-                {
-                    return new List<TeamMemberModel>();
-                }
-
-                return new List<TeamMemberModel>()
-                {
-                    new TeamMemberModel() { Id = Guid.Empty, Name = firstItem }
-                };
+                return new List<MemberModel>();
             }
 
             var members = await this.entityContext.Teams
@@ -159,17 +151,15 @@ namespace TyzenR.Taskman.Managers
                 .Where(u => members.Select(m => m.MemberId).Contains(u.Id))
                 .ToListAsync();
 
-            var result = new List<TeamMemberModel>();
-            result.Add(new TeamMemberModel() { Id = user.Id, Name = user.FirstName });
+            var result = new List<MemberModel>();
+            result.Add(new MemberModel() { Id = user.Id, Name = user.FirstName });
             foreach (var member in members)
             {
                 if (!result.Any(r => r.Id == member.MemberId))
                 {
-                    result.Add(new TeamMemberModel() { Id = member.MemberId, Name = users.FirstOrDefault(u => u.Id == member.MemberId)?.FirstName });
+                    result.Add(new MemberModel() { Id = member.MemberId, Name = users.FirstOrDefault(u => u.Id == member.MemberId)?.FirstName });
                 }
             }
-
-            result.Insert(0, new TeamMemberModel() { Id = Guid.Empty, Name = firstItem });
 
             return result;
         }
