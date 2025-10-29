@@ -1,6 +1,6 @@
 ﻿namespace TyzenR.Taskman.Entity
 {
-    public class MemberModel
+    public class TeamMemberModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
