@@ -291,6 +291,11 @@
                     ErrorMessage = "Title is required!";
                 }
 
+                else if ((item.Date.Value < DateTime.UtcNow.ToIndiaDateTime()) && (DateTime.UtcNow.ToIndiaDateTime() - item.Date.Value).Days > 1)
+                {
+                    ErrorMessage = "Date cannot be past 1 day!";
+                }
+
                 else // If valid
                 {
                     item.Description = JsonConvert.SerializeObject(TimesheetItems);
